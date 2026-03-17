@@ -66,6 +66,14 @@
       }
     },
     {
+      "key": "lucky-envelope",
+      "name": "Lucky Envelope Brewing",
+      "url": "https://www.luckyenvelopebrewing.com/",
+      "parser_config": {
+        "note": "Squarespace page with embedded JSON in data-current-context carousel attribute"
+      }
+    },
+    {
       "key": "salehs-corner",
       "name": "Saleh's Corner",
       "url": "https://www.seattlefoodtruck.com/api/events",

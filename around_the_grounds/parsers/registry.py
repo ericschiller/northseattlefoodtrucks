@@ -3,6 +3,7 @@ from typing import Dict, Type
 from .bale_breaker import BaleBreakerParser
 from .base import BaseParser
 from .chucks_greenwood import ChucksGreenwoodParser
+from .lucky_envelope import LuckyEnvelopeParser
 from .obec_brewing import ObecBrewingParser
 from .salehs_corner import SalehsCornerParser
 from .stoup_ballard import StoupBallardParser
@@ -19,6 +20,7 @@ class ParserRegistry:
         "wheelie-pop": WheeliePopParser,
         "chucks-greenwood": ChucksGreenwoodParser,
         "salehs-corner": SalehsCornerParser,
+        "lucky-envelope": LuckyEnvelopeParser,
     }
 
     @classmethod
