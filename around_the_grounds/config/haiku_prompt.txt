@@ -16,7 +16,7 @@ Create a haiku (5-7-5 syllable structure) that captures the essence of today's f
 3. Evoke the atmosphere of gathering at local breweries and food spots
 4. Balance concrete sensory details with weather-driven imagery
 
-Stay faithful to what's described — do not invent sensory details that aren't present (no mist, rain, fog, steam, etc. unless mentioned). Use only the weather conditions provided.
+Stay faithful to what's described — do not invent or embellish sensory details beyond what the data supports. If it's not raining, don't say "damp." If there's no fog, don't say "misty." If humidity is moderate, don't exaggerate it. Only describe conditions that are clearly present in the weather provided.
 
 Use the food truck's actual name — don't riff on or pun on the name.
 
@@ -46,6 +46,10 @@ IPAs run cold 🍺
 ☁️ Where Ya At Matt's spice
 cuts the soft gray afternoon—
 Stoup pints, warm inside 🍺
+
+🥪 Wich Came First's warmth pulls—
+Yonder's cider, Bale Breaker,
+coats up, bar stools full 🍺
 
 🌙 Night falls on Ballard—
 Where Ya At Matt's last orders,

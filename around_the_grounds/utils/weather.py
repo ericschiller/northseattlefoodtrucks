@@ -86,6 +86,19 @@ def _get_time_window_and_date(
         return tomorrow_str, "Afternoon", [14, 15, 16, 17]
 
 
+# Precipitation-related WMO codes (drizzle, rain, snow, showers, thunderstorms)
+_PRECIP_CODES = {
+    51, 53, 55, 56, 57,  # drizzle
+    61, 63, 65, 66, 67,  # rain
+    71, 73, 75, 77,      # snow
+    80, 81, 82, 85, 86,  # showers
+    95, 96, 99,          # thunderstorms
+}
+
+# Minimum average precipitation probability to report precipitation weather codes
+_PRECIP_PROBABILITY_THRESHOLD = 40
+
+
 def _summarize_hours(
     hourly_data: dict,
     target_date: str,
@@ -96,6 +109,9 @@ def _summarize_hours(
     codes = []
     winds = []
     humidities = []
+    precip_probs = []
+
+    has_precip_prob = "precipitation_probability" in hourly_data
 
     for i, t in enumerate(hourly_data["time"]):
         date_part, time_part = t.split("T")
@@ -105,6 +121,8 @@ def _summarize_hours(
             codes.append(hourly_data["weather_code"][i])
             winds.append(hourly_data["wind_speed_10m"][i])
             humidities.append(hourly_data["relative_humidity_2m"][i])
+            if has_precip_prob:
+                precip_probs.append(hourly_data["precipitation_probability"][i])
 
     if not temps:
         return None
@@ -112,9 +130,21 @@ def _summarize_hours(
     avg_temp = round(sum(temps) / len(temps))
     avg_wind = sum(winds) / len(winds)
     avg_humidity = round(sum(humidities) / len(humidities))
+    avg_precip_prob = (
+        sum(precip_probs) / len(precip_probs) if precip_probs else 0
+    )
 
-    # Use the most severe weather code in the window
+    # Use the most severe weather code in the window, but downgrade
+    # precipitation codes to the best non-precipitation code if the
+    # average precipitation probability is below the threshold.
     worst_code = max(codes)
+    if (
+        worst_code in _PRECIP_CODES
+        and avg_precip_prob < _PRECIP_PROBABILITY_THRESHOLD
+    ):
+        non_precip = [c for c in codes if c not in _PRECIP_CODES]
+        worst_code = max(non_precip) if non_precip else 3  # default to overcast
+
     condition = WMO_CODES.get(worst_code, "unknown conditions")
     wind_desc = _describe_wind(avg_wind)
 
@@ -135,7 +165,7 @@ async def fetch_weather() -> Optional[tuple[str, str]]:
     params = {
         "latitude": BALLARD_LAT,
         "longitude": BALLARD_LON,
-        "hourly": "temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m",
+        "hourly": "temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m,precipitation_probability",
         "temperature_unit": "fahrenheit",
         "timezone": "America/Los_Angeles",
         "forecast_days": 2,

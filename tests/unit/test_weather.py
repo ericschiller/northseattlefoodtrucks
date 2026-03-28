@@ -193,6 +193,7 @@ class TestSummarizeHours:
         codes: list = None,
         winds: list = None,
         humidities: list = None,
+        precip_probs: list = None,
     ) -> dict:
         """Build sample hourly data for testing."""
         if hours is None:
@@ -205,6 +206,8 @@ class TestSummarizeHours:
             winds = [10.0] * len(hours)
         if humidities is None:
             humidities = [65] * len(hours)
+        if precip_probs is None:
+            precip_probs = [0] * len(hours)
 
         time_list = [f"{target_date}T{h:02d}:00" for h in hours]
         return {
@@ -213,6 +216,7 @@ class TestSummarizeHours:
             "weather_code": codes,
             "wind_speed_10m": winds,
             "relative_humidity_2m": humidities,
+            "precipitation_probability": precip_probs,
         }
 
     def test_summarize_afternoon_hours(self) -> None:
@@ -236,16 +240,31 @@ class TestSummarizeHours:
         assert "66\u00b0F" in result
 
     def test_summarize_with_varying_weather_codes(self) -> None:
-        """Test that the worst (highest) weather code is used."""
+        """Test that the worst (highest) weather code is used when precip probability is high."""
         hourly = self._make_hourly_data(
             hours=list(range(24)),
             codes=[0] * 14 + [2, 3, 61, 1] + [0] * 6,  # worst=61 at hour 16
+            precip_probs=[0] * 14 + [80, 80, 80, 80] + [0] * 6,  # high probability
         )
 
         result = _summarize_hours(hourly, "2026-03-28", [14, 15, 16, 17])
 
         assert result is not None
         assert "slight rain" in result  # WMO code 61
+
+    def test_summarize_precip_code_downgraded_when_low_probability(self) -> None:
+        """Test that precipitation codes are downgraded when probability is below threshold."""
+        hourly = self._make_hourly_data(
+            hours=list(range(24)),
+            codes=[0] * 14 + [2, 3, 61, 1] + [0] * 6,  # worst=61 at hour 16
+            precip_probs=[0] * 14 + [10, 10, 10, 10] + [0] * 6,  # low probability
+        )
+
+        result = _summarize_hours(hourly, "2026-03-28", [14, 15, 16, 17])
+
+        assert result is not None
+        assert "slight rain" not in result
+        assert "overcast" in result  # Falls back to WMO code 3
 
     def test_summarize_no_matching_hours(self) -> None:
         """Test when no hours match the target date."""
@@ -324,6 +343,7 @@ class TestSummarizeHours:
         codes = [0] * 24 + [65] * 24
         winds = [10.0] * 24 + [40.0] * 24
         humidities = [65] * 24 + [90] * 24
+        precip_probs = [0] * 24 + [90] * 24  # high probability tomorrow
 
         hourly = {
             "time": time_list,
@@ -331,6 +351,7 @@ class TestSummarizeHours:
             "weather_code": codes,
             "wind_speed_10m": winds,
             "relative_humidity_2m": humidities,
+            "precipitation_probability": precip_probs,
         }
 
         # Ask for tomorrow's data
@@ -338,7 +359,7 @@ class TestSummarizeHours:
 
         assert result is not None
         assert "70\u00b0F" in result
-        assert "heavy rain" in result  # WMO 65
+        assert "heavy rain" in result  # WMO 65, high precip prob
         assert "very windy" in result
         assert "90% humidity" in result
 
