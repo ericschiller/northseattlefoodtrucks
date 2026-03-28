@@ -6,7 +6,7 @@ A Python CLI tool for tracking food truck schedules across multiple breweries. S
 
 - 🔄 **Async Web Scraping**: Concurrent processing of multiple brewery websites
 - 🖼️ **AI Vision Analysis**: Extracts vendor names from food truck images using Claude Vision API
-- 🎋 **AI Haiku Generation**: Creates contextual, seasonal haikus about daily food truck scenes
+- 🎋 **AI Haiku Generation**: Creates weather-aware, seasonal haikus about daily food truck scenes using real-time weather data
 - 🌐 **Auto-Deployment**: Git-based deployment to static site platforms (Vercel, Netlify, etc.)
 - ⏰ **Temporal Workflows**: Reliable scheduling with cloud or local execution
 - 🧪 **Comprehensive Testing**: 196 tests covering unit, integration, and error scenarios
@@ -239,7 +239,15 @@ TEMPORAL_API_KEY=your-temporal-api-key
 ### Haiku Prompt Template
 - Default prompt: `around_the_grounds/config/haiku_prompt.txt`
 - Override via env var: `HAIKU_PROMPT_FILE=/path/to/custom_prompt.txt`
-- Template placeholders: `{date}`, `{truck_name}`, `{brewery_name}`, `{events_summary}`
+- Template placeholders: `{date}`, `{truck_name}`, `{brewery_name}`, `{events_summary}`, `{weather}`, `{time_of_day}`
+- Model: `claude-sonnet-4-6`
+
+**Weather integration**: The haiku generator fetches real-time weather from the [Open-Meteo API](https://open-meteo.com/) (free, no API key needed) for Ballard, Seattle. Weather conditions are woven into the generated haikus for more authentic, grounded poetry. Time-based logic selects the appropriate forecast window:
+- Before 6pm PT: uses afternoon forecast
+- 6-9pm PT: uses evening forecast
+- 9pm+ PT: uses next day's afternoon forecast
+
+If the weather fetch fails, haiku generation is gracefully skipped.
 
 Copy the default file and tweak the location descriptions, tone, or formatting to suit your own food truck scene. Missing placeholders trigger a safe fallback to the built-in prompt.
 
@@ -304,7 +312,7 @@ See [CLAUDE.md](CLAUDE.md) for detailed development documentation.
 - **CLI Tool**: `around_the_grounds/main.py` - Entry point
 - **Parsers**: Extensible system for different brewery websites
 - **Scrapers**: Async coordinator with error handling and retries
-- **AI Utils**: Vision analyzer for vendor identification, haiku generator for daily scenes
+- **AI Utils**: Vision analyzer for vendor identification, weather-aware haiku generator for daily scenes
 - **Temporal**: Workflow orchestration for reliable scheduling
 - **Web Interface**: Template files in `public_template/` (copied to target repo)
 - **Tests**: 196 tests covering unit, integration, and error scenarios

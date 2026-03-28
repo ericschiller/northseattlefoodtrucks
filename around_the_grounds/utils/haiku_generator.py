@@ -18,6 +18,8 @@ DEFAULT_PROMPT_PATH = (
 )
 
 DEFAULT_PROMPT_TEMPLATE = """Today's date is: {date}
+Time of day: {time_of_day}
+Current weather in Ballard, Seattle: {weather}
 
 Today's featured food truck: {truck_name} at {brewery_name}
 
@@ -28,12 +30,18 @@ Today's haiku inspiration:
 
 Create a haiku (5-7-5 syllable structure) that captures the essence of today's food truck scene in Seattle's Ballard neighborhood. Your haiku should:
 
-1. Reflect the current season and time of year based on today's date
+1. Let the weather seep into the imagery naturally — through textures, moods, and sensory details — rather than stating it directly
 2. Feature the specific food truck ({truck_name}) and brewery ({brewery_name}) mentioned above
 3. Evoke the atmosphere of gathering at local breweries and food spots
-4. Balance concrete sensory details with seasonal imagery
+4. Balance concrete sensory details with weather-driven imagery
 
-The haiku should feel authentic to the Pacific Northwest autumn/winter/spring/summer experience and celebrate the diversity of street food culture. Avoid being overly literal - aim for evocative, poetic language that honors the traditional haiku form.
+Stay faithful to what's described — do not invent sensory details that aren't present (no mist, rain, fog, steam, etc. unless mentioned). Use only the weather conditions provided.
+
+Use the food truck's actual name — don't riff on or pun on the name.
+
+Avoid starting with the most obvious weather description (e.g. don't just say "gray skies" for overcast). Find unexpected angles — how the weather affects sounds, smells, textures, people's behavior, or the food itself.
+
+The haiku should feel authentic to the Pacific Northwest experience and celebrate the diversity of street food culture. Avoid being overly literal - aim for evocative, poetic language that honors the traditional haiku form.
 
 CRITICAL FORMATTING REQUIREMENTS:
 - The haiku MUST be exactly 3 lines of text
@@ -42,19 +50,31 @@ CRITICAL FORMATTING REQUIREMENTS:
 - Do NOT put emojis on their own separate lines
 - Good examples:
 
-🍂 Autumn mist rolls in—
+🌧️ Spring rain has moods low—
 Plaza Garcia's warmth glows
 at Obec's wood door 🍺
 
-☀️ Summer sun beams bright
-Where Ya At Matt hangs at Stoup,
-Hops drank with good eats 🍺
+☀️ Tacos sizzle bright
+at Stoup beneath golden rays,
+summer haze and hops 🍺
+
+🍖 Brisket smoke and hops—
+Johnson's plates at Stoup's long pour,
+IPAs run cold 🍺
+
+☁️ Where Ya At Matt's spice
+cuts the soft gray afternoon—
+Stoup pints, warm inside 🍺
+
+🌙 Night falls on Ballard—
+Where Ya At Matt's last orders,
+stout warms the long dark 🍺
 
 Return only the haiku with inline emoji, nothing else."""
 
 
 class HaikuGenerator:
-    """Generates haikus about food truck events using Claude Sonnet 4.5."""
+    """Generates haikus about food truck events using Claude Sonnet 4.6."""
 
     def __init__(
         self,
@@ -126,6 +146,18 @@ class HaikuGenerator:
     ) -> Optional[str]:
         """Internal method to generate haiku using Claude API."""
         try:
+            from .weather import fetch_weather
+
+            # Fetch real-time weather — required for haiku generation
+            weather_result = await fetch_weather()
+            if weather_result is None:
+                self.logger.warning(
+                    "Could not fetch weather data, skipping haiku generation"
+                )
+                return None
+
+            weather_summary, time_of_day = weather_result
+
             # Format date for prompt
             date_str = date.strftime("%B %d, %Y (%A)")
 
@@ -144,11 +176,14 @@ class HaikuGenerator:
                 truck_name=truck_name,
                 brewery_name=brewery_name,
                 events=[selected_event],
+                weather=weather_summary,
+                time_of_day=time_of_day,
             )
 
             message = self.client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-sonnet-4-6",
                 max_tokens=150,
+                temperature=0.85,
                 messages=[
                     {
                         "role": "user",
@@ -243,6 +278,8 @@ class HaikuGenerator:
         truck_name: str,
         brewery_name: str,
         events: List[FoodTruckEvent],
+        weather: str,
+        time_of_day: str,
     ) -> str:
         """Render the configured prompt template with context."""
         events_summary = "\n".join(
@@ -250,14 +287,17 @@ class HaikuGenerator:
         )
 
         template = self.prompt_template
+        format_kwargs = dict(
+            date=date_str,
+            truck_name=truck_name,
+            brewery_name=brewery_name,
+            events_summary=events_summary,
+            weather=weather,
+            time_of_day=time_of_day,
+        )
 
         try:
-            return template.format(
-                date=date_str,
-                truck_name=truck_name,
-                brewery_name=brewery_name,
-                events_summary=events_summary,
-            )
+            return template.format(**format_kwargs)
         except KeyError as exc:
             self.logger.warning(
                 "Prompt template missing placeholder %s; falling back to default",
@@ -270,9 +310,4 @@ class HaikuGenerator:
                 exc,
             )
 
-        return DEFAULT_PROMPT_TEMPLATE.format(
-            date=date_str,
-            truck_name=truck_name,
-            brewery_name=brewery_name,
-            events_summary=events_summary,
-        )
+        return DEFAULT_PROMPT_TEMPLATE.format(**format_kwargs)

@@ -8,7 +8,7 @@ Around the Grounds is a robust Python CLI tool for tracking food truck schedules
 - **Web interface** with mobile-responsive design and automatic deployment to Vercel
 - **Async web scraping** with concurrent processing of multiple brewery websites
 - **AI vision analysis** using Claude Vision API to extract vendor names from food truck logos/images
-- **AI haiku generation** using Claude Sonnet to create contextual, poetic descriptions of daily food truck scenes
+- **AI haiku generation** using Claude Sonnet with real-time weather integration to create contextual, poetic descriptions of daily food truck scenes
 - **Auto-deployment** with git integration for seamless web updates
 - **Extensible parser system** with custom parsers for different brewery website structures
 - **Comprehensive error handling** with retry logic, isolation, and graceful degradation
@@ -193,7 +193,8 @@ around_the_grounds/
 ├── utils/
 │   ├── date_utils.py           # Date/time utilities with validation
 │   ├── vision_analyzer.py      # AI vision analysis for vendor identification
-│   └── haiku_generator.py      # AI haiku generation for food truck scenes
+│   ├── haiku_generator.py      # AI haiku generation with weather-grounded imagery
+│   └── weather.py              # Real-time weather fetching via Open-Meteo API
 └── main.py                     # CLI entry point with web deployment support
 
 public_template/                # Web interface templates (copied to target repo)
@@ -236,7 +237,7 @@ tests/                          # Comprehensive test suite
   - `FoodTruckStarter`: CLI client for manual workflow execution
   - `ScheduleManager`: Comprehensive schedule management with configurable intervals and full lifecycle operations
 - **Config**: JSON-based configuration with validation and error reporting
-- **Utils**: Date/time utilities, AI vision analysis for vendor identification, AI haiku generation for daily scenes
+- **Utils**: Date/time utilities, AI vision analysis for vendor identification, AI haiku generation with weather integration, real-time weather fetching via Open-Meteo API
 - **Web Interface**: Mobile-responsive HTML/CSS/JS frontend with automatic data fetching
 - **Web Deployment**: Git-based deployment system with Vercel integration for automatic updates
 - **Tests**: 196 tests covering all scenarios including extensive error handling, vision analysis, and haiku generation
@@ -267,7 +268,15 @@ See [ADDING-BREWERIES.md](./ADDING-BREWERIES.md)
 
 ## Haiku Generator
 
-The system includes AI-powered haiku generation that creates contextual, poetic descriptions of daily food truck scenes. Haikus reflect the current season, feature specific food trucks and breweries, and follow traditional 5-7-5 syllable structure.
+The system includes AI-powered haiku generation (using `claude-sonnet-4-6` at `temperature=0.85`) that creates contextual, poetic descriptions of daily food truck scenes. Haikus are grounded in real-time weather data fetched from the Open-Meteo API (free, no API key required) for Ballard, Seattle. Weather data is required -- if the weather fetch fails, no haiku is generated.
+
+**Time-based weather logic** selects the appropriate forecast based on current Pacific Time:
+- Before 6pm PT: uses afternoon forecast for today
+- 6-9pm PT: uses evening forecast for today
+- 9pm-midnight PT: uses afternoon forecast for tomorrow
+- After midnight: uses afternoon forecast for today (new calendar day)
+
+Haiku prompts incorporate weather-grounded imagery, time-of-day awareness, and beer/brewery references while avoiding invented sensory details.
 
 See [HAIKU-GENERATOR.md](./HAIKU-GENERATOR.md) for detailed documentation on configuration, usage, and implementation.
 
