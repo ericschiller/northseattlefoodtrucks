@@ -43,7 +43,11 @@ jobs:
           sudo apt-get install -y libxml2-dev libxslt-dev
 
       - name: Scrape Breweries
-        run: uv run around-the-grounds --preview
+        run: |
+          mkdir -p frontend/public
+          uv run around-the-grounds --preview
+          echo "Files in frontend/public after scrape:"
+          ls -l frontend/public/
 
       # --- Step 2: Build Nuxt Frontend ---
       - name: Setup Node
@@ -66,13 +70,24 @@ jobs:
           fi
           echo "Using NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL"
           cd frontend && npm run generate
+          
+          echo "Files in frontend/public after generate:"
+          ls -l public/ || ls -l ../public/ || true
         env:
           NUXT_APP_BASE_URL: ${{ vars.NUXT_APP_BASE_URL }}
 
       - name: Post-process for GitHub Pages
         run: |
-          # Ensure data.json is in the build output (sometimes Nuxt SSG excludes it if not used in a way it detects)
-          cp frontend/public/data.json frontend/.output/public/data.json
+          # Ensure data.json is in the build output
+          # We check both possible locations since we might be in frontend/ or root
+          if [ -f frontend/public/data.json ]; then
+            cp frontend/public/data.json frontend/.output/public/data.json
+          elif [ -f public/data.json ]; then
+            cp public/data.json .output/public/data.json
+          else
+            echo "❌ CRITICAL: data.json NOT FOUND"
+            exit 1
+          fi
           
           # Ensure Jekyll doesn't run on the output
           touch frontend/.output/public/.nojekyll
