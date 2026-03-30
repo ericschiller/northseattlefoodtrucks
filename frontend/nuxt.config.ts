@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
     buildAssetsDir: 'assets',
     head: {
-      title: 'North Seattle Food Trucks',
+      title: 'North Seattle Beer',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { charset: 'utf-8' }

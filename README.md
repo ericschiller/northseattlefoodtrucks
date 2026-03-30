@@ -1,4 +1,4 @@
-# North Seattle Food Trucks
+# North Seattle Beer
 
 A Python CLI tool for tracking food truck schedules and brewery events across North Seattle. Scrapes brewery websites asynchronously and generates a unified 7-day schedule served via a Nuxt 3 web frontend.
 

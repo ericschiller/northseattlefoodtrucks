@@ -434,7 +434,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
-    print("🍺 Around the Grounds - Food Truck Tracker")
+    print("🍺 North Seattle Beer")
     print("=" * 50)
 
     try:

@@ -261,7 +261,7 @@ class TestCLI:
 
             assert exit_code == 0
             captured = capsys.readouterr()
-            assert "🍺 Around the Grounds - Food Truck Tracker" in captured.out
+            assert "🍺 North Seattle Beer" in captured.out
             assert "Found 2 food truck events:" in captured.out
 
     def test_main_complete_failure(self, temp_config_file: str, capsys: Any) -> None:
