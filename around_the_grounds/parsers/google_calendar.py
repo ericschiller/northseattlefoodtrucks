@@ -26,6 +26,13 @@ _CATEGORY_RULES: List[Tuple[str, str]] = [
 ]
 
 
+def _clean_summary(summary: str) -> str:
+    """Remove common prefixes from event summary."""
+    # Remove "Dinner:", "Brunch:", "Food Truck:", etc.
+    cleaned = re.sub(r"^(dinner|brunch|food\s*truck|event)\s*:\s*", "", summary, flags=re.IGNORECASE)
+    return cleaned.strip()
+
+
 def _categorize(summary: str) -> str:
     for pattern, cat in _CATEGORY_RULES:
         if re.search(pattern, summary, re.IGNORECASE):
@@ -220,7 +227,7 @@ class GoogleCalendarParser(BaseParser):
         return FoodTruckEvent(
             brewery_key=self.brewery.key,
             brewery_name=self.brewery.name,
-            food_truck_name=summary,
+            food_truck_name=_clean_summary(summary),
             date=_midnight(start),
             start_time=None if is_date_only else start,
             end_time=None if is_date_only else end,
