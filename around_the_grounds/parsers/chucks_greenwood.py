@@ -134,7 +134,7 @@ class ChucksGreenwoodParser(BaseParser):
 
         # Extract event name (Column G)
         event_name = row[6].strip() if len(row) > 6 else ""
-        if not event_name:
+        if not event_name or event_name == "#VALUE!":
             return None
 
         # Determine category

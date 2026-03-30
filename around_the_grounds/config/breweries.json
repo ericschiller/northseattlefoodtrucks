@@ -65,11 +65,11 @@
     {
       "key": "hellbent",
       "name": "Hellbent Brewing Company",
-      "url": "https://hellbentbrewingcompany.com/food-trucks/",
+      "url": "https://calendar.google.com/calendar/ical/e0q0pfdgitf7352rptrophast8%40group.calendar.google.com/public/basic.ics",
       "website_url": "https://hellbentbrewingcompany.com/",
       "parser_config": {
-        "note": "WordPress site with Simple Calendar (SimCal) plugin",
-        "api_type": "simcal"
+        "note": "Public Google Calendar iCal feed for food trucks",
+        "default_category": "food-truck"
       }
     },
     {

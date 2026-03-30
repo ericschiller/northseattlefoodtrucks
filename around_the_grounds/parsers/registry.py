@@ -31,7 +31,7 @@ class ParserRegistry:
         "halcyon-brewing": SquarespaceEventsParser,
         "lucky-envelope": LuckyEnvelopeParser,
         "shoreline-cc": WaFoodTrucksParser,
-        "hellbent": HellbentParser,
+        "hellbent": GoogleCalendarParser,
     }
 
     @classmethod

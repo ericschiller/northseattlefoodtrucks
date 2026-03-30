@@ -23,7 +23,7 @@ const searchTruck = (truckName: string) => {
 </script>
 
 <template>
-  <div class="group p-8 rounded-2xl bg-[#FFFFFF] border border-[#1E293B]/10 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-all duration-300">
+  <div class="group p-8 rounded-lg bg-[#FFFFFF] border border-[#1E293B]/10 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-all duration-300">
     <div class="flex flex-col md:flex-row md:items-center justify-between">
       <div class="max-w-md">
         <h3

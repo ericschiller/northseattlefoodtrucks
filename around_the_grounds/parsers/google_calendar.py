@@ -18,10 +18,11 @@ _PACIFIC = ZoneInfo("America/Los_Angeles")
 _WEEKDAY = {"MO": 0, "TU": 1, "WE": 2, "TH": 3, "FR": 4, "SA": 5, "SU": 6}
 
 _CATEGORY_RULES: List[Tuple[str, str]] = [
-    (r"food\s*truck", "food-truck"),
     (r"live\s*music|concert|open\s*mic|jam\s*session", "live-music"),
     (r"trivia", "trivia"),
     (r"run(ning)?\s*club", "community"),
+    (r"yarnaholics|knitting", "community"),
+    (r"food\s*truck", "food-truck"),
 ]
 
 
@@ -137,7 +138,18 @@ class GoogleCalendarParser(BaseParser):
         events: List[FoodTruckEvent] = []
         for block in blocks:
             events.extend(self._parse_vevent(block))
-        return events
+        
+        # Deduplicate identical events by date and name
+        seen = set()
+        deduped: List[FoodTruckEvent] = []
+        for event in events:
+            key = (event.date.date(), event.food_truck_name, event.start_time, event.end_time)
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(event)
+            
+        return deduped
 
     def _parse_vevent(self, block: str) -> List[FoodTruckEvent]:
         summary = ""
@@ -170,7 +182,15 @@ class GoogleCalendarParser(BaseParser):
             return []
 
         is_date_only = "VALUE=DATE" in dtstart_params.upper()
+        
+        # Categorize first to see if it's a known event type (trivia, etc)
         category = _categorize(summary)
+        
+        # If it's community/unknown and we have a default for this brewery, use it
+        if category == "community":
+            default_cat = self.brewery.parser_config.get("default_category")
+            if default_cat:
+                category = default_cat
 
         if rrule_value:
             byday, until = _parse_rrule(rrule_value)
