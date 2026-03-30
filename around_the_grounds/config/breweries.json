@@ -7,8 +7,7 @@
       "website_url": "https://www.chuckshopshop.com/greenwood",
       "parser_config": {
         "note": "Google Sheets CSV export with automatic monthly updates",
-        "csv_direct": true,
-        "event_type_filter": "Food Truck"
+        "csv_direct": true
       }
     },
     {
@@ -87,6 +86,23 @@
           "Trivia": "trivia",
           "GAME NIGHT": "community",
           "MEET-N-GREET": "community"
+        }
+      }
+    },
+    {
+      "key": "halcyon-brewing",
+      "name": "Halcyon Brewing Co.",
+      "url": "https://www.halcyonbrewingco.com/events",
+      "website_url": "https://www.halcyonbrewingco.com/",
+      "parser_config": {
+        "note": "Squarespace events collection JSON",
+        "api_type": "squarespace_events",
+        "exclude_patterns": [
+          "food truck"
+        ],
+        "category_patterns": {
+          "Trivia": "trivia",
+          "Bingo": "community"
         }
       }
     }
