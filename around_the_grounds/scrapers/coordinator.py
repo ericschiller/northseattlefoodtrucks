@@ -214,20 +214,17 @@ class ScraperCoordinator:
         Uses Seattle timezone to ensure events are filtered correctly regardless of server location.
         """
         # Use Seattle timezone (PST/PDT) consistently
-        try:
-            from zoneinfo import ZoneInfo
-        except ImportError:
-            from backports.zoneinfo import ZoneInfo  # type: ignore
-            
-        seattle_tz = ZoneInfo("America/Los_Angeles")
+        seattle_tz = timezone(
+            timedelta(hours=-8)
+        )  # PST (PDT would be -7, but keeping simple)
         now = datetime.now(seattle_tz)
         one_week_later = now + timedelta(days=7)
 
-        # Filter to next 7 days (including yesterday for overlap/context)
+        # Filter to next 7 days
         filtered_events = [
             event
             for event in events
-            if (now - timedelta(days=1)).date() <= event.date.date() <= one_week_later.date()
+            if now.date() <= event.date.date() <= one_week_later.date()
         ]
 
         # Sort by date, then by start time

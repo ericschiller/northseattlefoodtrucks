@@ -248,20 +248,28 @@ class ChucksGreenwoodParser(BaseParser):
                 return None
 
             # Determine appropriate year using Pacific timezone context
-            current_year = get_pacific_year()
-            current_month = get_pacific_month()
+            from ..utils.timezone_utils import now_in_pacific_naive
+            now_pacific = now_in_pacific_naive()
+            current_year = now_pacific.year
+            current_month = now_pacific.month
+            current_day = now_pacific.day
 
-            # If month is much earlier (e.g. current is Jan, month is Dec), assume last year 
-            # (but we mostly care about future events)
-            # If month is Dec and current is Jan, it's likely from the previous year's sheet
-            # If month is Jan and current is Dec, it's likely next year
+            # If month is earlier than current month, it's likely next year 
+            # UNLESS it's just the end of the previous month and we're in the first few days of the next
+            # Chuck's often has the last few days of the previous month in the sheet
             
-            if month_num == 1 and current_month == 12:
-                year = current_year + 1
-            elif month_num == 12 and current_month == 1:
-                year = current_year - 1
-            else:
-                year = current_year
+            year = current_year
+            if month_num < current_month:
+                # If we're in Jan and the month is Dec, it's last year (past)
+                if current_month == 1 and month_num == 12:
+                    year = current_year - 1
+                # Otherwise, it's likely next year
+                else:
+                    year = current_year + 1
+            elif month_num > current_month:
+                # If we're in Dec and the month is Jan, it's next year
+                if current_month == 12 and month_num == 1:
+                    year = current_year + 1
 
             return parse_date_with_pacific_context(year, month_num, day_num)
 
