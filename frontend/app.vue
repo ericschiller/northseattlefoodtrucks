@@ -75,7 +75,11 @@ const formatUpdatedDate = (isoString: string) => {
 </script>
 
 <template>
-  <div class="bg-surface text-on-surface min-h-screen font-body selection:bg-primary-mint/30">
+  <div class="bg-[#f9fffb] text-[#2e3432] min-h-screen font-body selection:bg-primary-mint/30">
+    <!-- HARDCODED TEST ELEMENT -->
+    <div style="background: red; color: white; padding: 10px; text-align: center; position: fixed; top: 0; width: 100%; z-index: 9999;">
+      DEBUG: APP IS RENDERING
+    </div>
     <main class="pt-16 pb-24 px-6 md:px-12 max-w-4xl mx-auto min-h-screen">
       <AppHeader :updated-date="data?.updated ? formatUpdatedDate(data.updated) : undefined" />
 

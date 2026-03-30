@@ -25,5 +25,8 @@ export default defineNuxtConfig({
     prerender: {
       routes: ['/']
     }
+  },
+  experimental: {
+    payloadExtraction: false
   }
 })
