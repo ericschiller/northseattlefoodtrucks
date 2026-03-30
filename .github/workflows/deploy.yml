@@ -35,7 +35,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: "pyproject.toml"
+          python-version: "3.12"
 
       - name: Install system dependencies
         run: |
@@ -44,8 +44,6 @@ jobs:
 
       - name: Scrape Breweries
         run: uv run around-the-grounds --preview
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       # --- Step 2: Build Nuxt Frontend ---
       - name: Setup Node

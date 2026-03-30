@@ -89,15 +89,9 @@ def format_events_output(
                 if event.description:
                     output.append(f"     {event.description}")
             else:
-                # Add AI vision indicator for AI-generated names
-                if event.ai_generated_name:
-                    output.append(
-                        f"  🚚 {event.food_truck_name} 🖼️🤖 @ {event.brewery_name}{time_str}"
-                    )
-                else:
-                    output.append(
-                        f"  🚚 {event.food_truck_name} @ {event.brewery_name}{time_str}"
-                    )
+                output.append(
+                    f"  🚚 {event.food_truck_name} @ {event.brewery_name}{time_str}"
+                )
                 if event.description:
                     output.append(f"     {event.description}")
 
@@ -155,10 +149,6 @@ def _event_to_web(event: FoodTruckEvent) -> dict:
         "timezone": "PT",
         "category": event.category,
     }
-
-    if event.ai_generated_name:
-        web_event["extraction_method"] = "vision"
-        web_event["vendor"] = f"{event.food_truck_name} 🖼️🤖"
 
     return web_event
 

@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from ..models import Brewery, FoodTruckEvent
 from ..utils.date_utils import DateUtils
 from ..utils.timezone_utils import PACIFIC_TZ
-from ..utils.vision_analyzer import VisionAnalyzer
 from .base import BaseParser
 
 
@@ -27,17 +26,6 @@ class UrbanFamilyParser(BaseParser):
 
     def __init__(self, brewery: Brewery) -> None:
         super().__init__(brewery)
-        self._vision_analyzer: Optional[VisionAnalyzer] = None
-        self._vision_cache: Dict[
-            str, Optional[str]
-        ] = {}  # Cache for image URL -> vendor name mappings
-
-    @property
-    def vision_analyzer(self) -> VisionAnalyzer:
-        """Lazy initialization of vision analyzer."""
-        if self._vision_analyzer is None:
-            self._vision_analyzer = VisionAnalyzer()
-        return self._vision_analyzer
 
     async def parse(self, session: aiohttp.ClientSession) -> List[FoodTruckEvent]:
         html_url = self._get_calendar_html_url()
@@ -193,7 +181,6 @@ class UrbanFamilyParser(BaseParser):
             start_time=start_time,
             end_time=end_time,
             description=event_url if isinstance(event_url, str) else None,
-            ai_generated_name=False,
         )
 
     def _is_food_truck_calendar_event(self, event_cell: Any) -> bool:
@@ -457,12 +444,11 @@ class UrbanFamilyParser(BaseParser):
         """
         try:
             # Extract food truck name from various possible fields
-            food_truck_name, ai_generated = self._extract_food_truck_name(item)
+            food_truck_name = self._extract_food_truck_name(item)
             if not food_truck_name:
                 # For Urban Family, many events don't have specific vendor names yet
                 # Return "TBD" instead of skipping to show the time slot is reserved
                 food_truck_name = "TBD"
-                ai_generated = False
 
             # Extract date information
             date = self._extract_date(item)
@@ -484,7 +470,6 @@ class UrbanFamilyParser(BaseParser):
                 start_time=start_time,
                 end_time=end_time,
                 description=description,
-                ai_generated_name=ai_generated,
             )
 
         except Exception as e:
@@ -493,78 +478,16 @@ class UrbanFamilyParser(BaseParser):
 
     def _extract_food_truck_name(
         self, item: Dict[str, Any]
-    ) -> Tuple[Optional[str], bool]:
+    ) -> Optional[str]:
         """
-        Extract food truck name with vision analysis fallback.
-        Returns a tuple of (extracted_name, ai_generated) where:
-        - extracted_name: The vendor name or None if no valid name found
-        - ai_generated: True if name was extracted using AI vision analysis
+        Extract food truck name from text fields or image filename.
         """
-        # Try existing text-based extraction methods first
+        # Try text-based extraction methods
         name = self._extract_name_from_text_fields(item)
         if name:
-            return name, False
+            return name
 
-        # If no name found from text, try image analysis
-        if "eventImage" in item and item["eventImage"]:
-            image_url = str(item["eventImage"])
-
-            # Check cache first
-            if image_url in self._vision_cache:
-                cached_name = self._vision_cache[image_url]
-                if cached_name:
-                    self.logger.debug(
-                        f"Using cached vision result for {image_url}: {cached_name}"
-                    )
-                    return cached_name, True
-                else:
-                    self.logger.debug(
-                        f"Cached vision result for {image_url} was None, retrying vision analysis"
-                    )
-                    # Don't return early - retry vision analysis for failed cache entries
-                    # This helps recover from temporary failures
-
-            self.logger.debug(f"Attempting vision analysis for image: {image_url}")
-
-            # Use asyncio to run the async vision analysis
-            try:
-                # Try to get the running event loop first
-                try:
-                    asyncio.get_running_loop()
-                    # If there's already a running loop, we need to use a different approach
-                    import concurrent.futures
-
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        future = executor.submit(
-                            asyncio.run,
-                            self.vision_analyzer.analyze_food_truck_image(image_url),
-                        )
-                        vision_name = future.result(timeout=30)
-                except RuntimeError:
-                    # No running event loop, safe to create a new one
-                    vision_name = asyncio.run(
-                        self.vision_analyzer.analyze_food_truck_image(image_url)
-                    )
-
-                # Cache the result (even if None)
-                self._vision_cache[image_url] = vision_name
-
-                if vision_name:
-                    self.logger.info(
-                        f"Vision analysis extracted name: {vision_name} from {image_url}"
-                    )
-                    return vision_name, True
-                else:
-                    self.logger.warning(
-                        f"Vision analysis returned no name for {image_url}"
-                    )
-            except Exception as e:
-                self.logger.warning(f"Vision analysis failed for {image_url}: {str(e)}")
-                # Don't cache failures permanently - allow retries on subsequent runs
-                # Only cache successful results or after multiple failures
-
-        # Return None if no valid name found
-        return None, False
+        return None
 
     def _extract_name_from_text_fields(self, item: Dict[str, Any]) -> Optional[str]:
         """Extract name from text fields (existing logic moved here)."""
@@ -636,10 +559,6 @@ class UrbanFamilyParser(BaseParser):
             # Clean up the name (remove underscores, etc.)
             name = name.replace("_", " ").replace("-", " ").strip()
 
-            # Smart filename parsing for Urban Family patterns
-            # Handle patterns like "LOGO_momo.png" -> "momo"
-            # Handle patterns like "MainlogoB_Webpreview_Georgia's.jpg" -> "Georgia's"
-
             # First, try to extract meaningful parts from compound filenames
             vendor_name = self._extract_vendor_from_filename(name)
             if vendor_name:
@@ -665,8 +584,7 @@ class UrbanFamilyParser(BaseParser):
             "67f0ab6de9f3be17e2ef63bd": "Kathmandu momoCha",  # From debug logs
             "67f6f76ce4ca31e444ef6380": "Alebrije",  # From debug logs
             "67f5a888e9f3be17e2ef63ce": "Birrieria Pepe El Toro LLC",  # From debug logs
-            "67f6f44de4ca31e444ef637d": "Tolu Modern Fijian Cuisine",  # October 2025 - was incorrectly parsed as "Blk" from filename
-            # Add more mappings as they're discovered
+            "67f6f44de4ca31e444ef637d": "Tolu Modern Fijian Cuisine",  # October 2025
         }
 
         mapped_name = vendor_mappings.get(vendor_id)

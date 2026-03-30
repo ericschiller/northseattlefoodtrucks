@@ -12,7 +12,6 @@ class FoodTruckEvent:
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     description: Optional[str] = None
-    ai_generated_name: bool = False
     brewery_url: Optional[str] = None
     category: str = "food-truck"
 

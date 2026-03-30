@@ -29,7 +29,6 @@ dependencies = [
     "beautifulsoup4",
     "lxml",
     "aiohttp",
-    "anthropic>=0.40.0",
     "temporalio>=1.9.0",
     "python-dotenv>=1.0.0",
     "PyJWT>=2.8.0",
