@@ -22,7 +22,7 @@ class ParserRegistry:
         "obec-brewing": ObecBrewingParser,
         "urban-family": UrbanFamilyParser,
         "wheelie-pop": WheeliePopParser,
-        "chucks-greenwood": GoogleCalendarParser,
+        "chucks-greenwood": ChucksGreenwoodParser,
         "salehs-corner": SeattleFoodTruckParser,
         "broadview-taphouse": SeattleFoodTruckParser,
         "broadview-taphouse-events": GoogleCalendarParser,

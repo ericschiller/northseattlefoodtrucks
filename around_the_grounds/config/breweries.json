@@ -3,11 +3,11 @@
     {
       "key": "chucks-greenwood",
       "name": "Chuck's Hop Shop Greenwood",
-      "url": "https://calendar.google.com/calendar/ical/tihhbg3gp215ruuo0nsp3qafgs%40group.calendar.google.com/public/basic.ics",
+      "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8BmXLSrsUVJ1x_x8FslWooOXRLeEJV-Jq5NzhfUCI9TtO-qXr0ey2BzY8KI-GflT7ekl5015XX3uj/pub?gid=1143085558&single=true&output=csv",
       "website_url": "https://www.chuckshopshop.com/greenwood",
       "parser_config": {
-        "note": "Public Google Calendar iCal feed for food trucks",
-        "default_category": "food-truck"
+        "note": "Google Sheets CSV export",
+        "csv_direct": true
       }
     },
     {

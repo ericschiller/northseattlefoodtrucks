@@ -148,6 +148,9 @@ class ChucksGreenwoodParser(BaseParser):
         # Determine category
         if event_type == "Event":
             category = "trivia" if re.search(r"trivia", event_name, re.IGNORECASE) else "community"
+        elif re.search(r"trivia", event_name, re.IGNORECASE):
+            # Sometimes events marked as Food Truck in column F are actually trivia
+            category = "trivia"
         else:
             category = "food-truck"
 

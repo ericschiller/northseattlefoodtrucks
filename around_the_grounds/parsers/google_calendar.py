@@ -165,6 +165,7 @@ class GoogleCalendarParser(BaseParser):
         recurrence_params = recurrence_value = ""
         dtend_params = dtend_value = ""
         rrule_value = ""
+        last_modified_value = ""
 
         for line in block.strip().splitlines():
             if ":" not in line:
@@ -183,6 +184,8 @@ class GoogleCalendarParser(BaseParser):
                 dtend_params, dtend_value = params_part, value
             elif base_key == "RRULE":
                 rrule_value = value
+            elif base_key == "LAST-MODIFIED":
+                last_modified_value = value
 
         if not summary or (not dtstart_value and not recurrence_value):
             return []
@@ -209,17 +212,25 @@ class GoogleCalendarParser(BaseParser):
             if default_cat:
                 category = default_cat
 
+        # STALE EVENT FILTER:
+        # Chuck's has many old recurring events from 2013-2015.
+        # We only want events that were created/updated recently OR specifically for now.
+        now = datetime.now(tz=_PACIFIC).replace(tzinfo=None)
+        
+        # If it's an infinite recurring event, check if it's been updated in the last 2 years
+        if rrule_value and "UNTIL" not in rrule_value.upper():
+            if last_modified_value:
+                last_mod = _parse_dt("", last_modified_value)
+                if last_mod and last_mod.date() < (now - timedelta(days=365*2)).date():
+                    self.logger.debug(f"Skipping ancient infinite recurring event: {summary}")
+                    return []
+            # Fallback if no last-modified: if started > 2 years ago, skip
+            elif dtstart.date() < (now - timedelta(days=365*2)).date():
+                return []
+
         if rrule_value:
             byday, until = _parse_rrule(rrule_value)
             if byday:
-                # CRITICAL FIX for Chuck's Hop Shop:
-                # Their calendar has MANY old recurring events from 2013-2015 that don't have UNTIL dates.
-                # If an event started more than 30 days ago and has no UNTIL date, it's likely stale.
-                now = datetime.now(tz=_PACIFIC).replace(tzinfo=None)
-                if dtstart.date() < (now - timedelta(days=30)).date() and until is None:
-                    self.logger.debug(f"Skipping potentially stale infinite recurring event: {summary}")
-                    return []
-
                 occurrences = _expand_weekly(dtstart, dtend, byday, until)
                 return [
                     self._make_event(summary, s, e, category, is_date_only=False)
