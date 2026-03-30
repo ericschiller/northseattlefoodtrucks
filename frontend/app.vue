@@ -97,13 +97,13 @@ const formatUpdatedDate = (isoString: string) => {
           <button
             @click="currentTab = 'trucks'"
             :class="currentTab === 'trucks'
-              ? 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-primary-mint-dark text-white font-bold transition-all shadow-sm'
+              ? 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-primary-mint-dark text-white border border-primary-mint-dark font-bold transition-all shadow-sm'
               : 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-[#F8F8FF] text-[#64748B] border border-[#64748B] font-bold transition-all hover:bg-white'"
           >TRUCKS</button>
           <button
             @click="currentTab = 'events'"
             :class="currentTab === 'events'
-              ? 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-primary-mint-dark text-white font-bold transition-all shadow-sm'
+              ? 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-primary-mint-dark text-white border border-primary-mint-dark font-bold transition-all shadow-sm'
               : 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-[#F8F8FF] text-[#64748B] border border-[#64748B] font-bold transition-all hover:bg-white'"
           >EVENTS</button>
         </div>

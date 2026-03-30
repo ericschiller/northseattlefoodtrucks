@@ -70,7 +70,7 @@ export default {
         "body": ["Work Sans"],
         "label": ["Work Sans"]
       },
-      borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+      borderRadius: { "DEFAULT": "2px", "md": "3px", "lg": "4px", "xl": "6px", "2xl": "8px", "full": "9999px" },
     },
   },
   plugins: [
