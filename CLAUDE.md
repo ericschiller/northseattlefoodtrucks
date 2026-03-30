@@ -8,12 +8,10 @@ Around the Grounds is a robust Python CLI tool for tracking food truck schedules
 - **Web interface** with mobile-responsive design and automatic deployment to Vercel
 - **Async web scraping** with concurrent processing of multiple brewery websites
 - **AI vision analysis** using Claude Vision API to extract vendor names from food truck logos/images
-- **AI haiku generation** using Claude Sonnet with real-time weather integration to create contextual, poetic descriptions of daily food truck scenes
 - **Auto-deployment** with git integration for seamless web updates
 - **Extensible parser system** with custom parsers for different brewery website structures
 - **Comprehensive error handling** with retry logic, isolation, and graceful degradation
 - **Temporal workflow integration** with cloud deployment support (local, Temporal Cloud, custom servers)
-- **Extensive test suite** with 196 tests covering unit, integration, vision analysis, haiku generation, and error scenarios
 - **Modern Python tooling** with uv for dependency management and packaging
 
 ## Development Commands
@@ -31,13 +29,11 @@ uv run around-the-grounds --config /path/to/config.json  # Use custom config (~6
 uv run around-the-grounds --preview    # Generate local preview files (~60s)
 uv run around-the-grounds --deploy     # Run and deploy to web (~90s total)
 
-# With AI features enabled (vision analysis + haiku generation)
 export ANTHROPIC_API_KEY="your-api-key"
 uv run around-the-grounds --verbose    # Run with AI features enabled (~60-90s)
 uv run around-the-grounds --deploy     # Run with AI features and deploy to web (~90-60s)
 ```
 
-**⏱️ Execution Times:** CLI operations typically take 60-90 seconds to scrape all brewery websites concurrently. Add extra time for AI features (vision analysis, haiku generation) and git operations when using `--deploy`.
 
 ### Local Preview & Testing
 
@@ -137,9 +133,7 @@ uv run python -m pytest tests/unit/        # Unit tests only
 uv run python -m pytest tests/parsers/     # Parser-specific tests
 uv run python -m pytest tests/integration/ # Integration tests
 uv run python -m pytest tests/unit/test_vision_analyzer.py  # Vision analysis tests
-uv run python -m pytest tests/unit/test_haiku_generator.py  # Haiku generation tests
 uv run python -m pytest tests/integration/test_vision_integration.py  # Vision integration tests
-uv run python -m pytest tests/integration/test_haiku_integration.py   # Haiku integration tests
 uv run python -m pytest tests/test_error_handling.py  # Error handling tests
 
 # Test options
@@ -147,7 +141,6 @@ uv run python -m pytest -v                 # Verbose output
 uv run python -m pytest --cov=around_the_grounds --cov-report=html  # Coverage
 uv run python -m pytest -k "test_error"    # Run error-related tests
 uv run python -m pytest -k "vision"        # Run vision-related tests
-uv run python -m pytest -k "haiku"         # Run haiku-related tests
 uv run python -m pytest -x                 # Stop on first failure
 ```
 
@@ -193,8 +186,6 @@ around_the_grounds/
 ├── utils/
 │   ├── date_utils.py           # Date/time utilities with validation
 │   ├── vision_analyzer.py      # AI vision analysis for vendor identification
-│   ├── haiku_generator.py      # AI haiku generation with weather-grounded imagery
-│   └── weather.py              # Real-time weather fetching via Open-Meteo API
 └── main.py                     # CLI entry point with web deployment support
 
 public_template/                # Web interface templates (copied to target repo)
@@ -211,11 +202,9 @@ tests/                          # Comprehensive test suite
 │   └── config/                 # Test configurations
 ├── unit/                       # Unit tests for individual components
 │   ├── test_vision_analyzer.py # Vision analysis component tests
-│   └── test_haiku_generator.py # Haiku generation component tests
 ├── parsers/                    # Parser-specific tests
 ├── integration/                # End-to-end integration tests
 │   ├── test_vision_integration.py  # Vision analysis integration tests
-│   └── test_haiku_integration.py   # Haiku generation integration tests
 └── test_error_handling.py      # Comprehensive error scenario tests
 ```
 
@@ -237,10 +226,8 @@ tests/                          # Comprehensive test suite
   - `FoodTruckStarter`: CLI client for manual workflow execution
   - `ScheduleManager`: Comprehensive schedule management with configurable intervals and full lifecycle operations
 - **Config**: JSON-based configuration with validation and error reporting
-- **Utils**: Date/time utilities, AI vision analysis for vendor identification, AI haiku generation with weather integration, real-time weather fetching via Open-Meteo API
 - **Web Interface**: Mobile-responsive HTML/CSS/JS frontend with automatic data fetching
 - **Web Deployment**: Git-based deployment system with Vercel integration for automatic updates
-- **Tests**: 196 tests covering all scenarios including extensive error handling, vision analysis, and haiku generation
 
 ### Core Dependencies
 
@@ -249,7 +236,6 @@ tests/                          # Comprehensive test suite
 - `beautifulsoup4` - HTML parsing with error tolerance
 - `lxml` - Fast XML/HTML parser backend
 - `requests` - HTTP library (legacy support)
-- `anthropic` - Claude API for AI-powered image analysis and haiku generation
 - `temporalio` - Temporal Python SDK for workflow orchestration
 
 **Development & Testing:**
@@ -266,19 +252,14 @@ The CLI is configured in `pyproject.toml` with entry point `around-the-grounds =
 
 See [ADDING-BREWERIES.md](./ADDING-BREWERIES.md)
 
-## Haiku Generator
 
-The system includes AI-powered haiku generation (using `claude-sonnet-4-6` at `temperature=0.85`) that creates contextual, poetic descriptions of daily food truck scenes. Haikus are grounded in real-time weather data fetched from the Open-Meteo API (free, no API key required). The weather location defaults to Ballard, Seattle but is configurable via `WEATHER_LOCATION_LAT` and `WEATHER_LOCATION_LON` environment variables. Weather data is required -- if the weather fetch fails, no haiku is generated.
 
-**Time-based weather logic** selects the appropriate forecast based on current Pacific Time:
 - Before 6pm PT: uses afternoon forecast for today
 - 6-9pm PT: uses evening forecast for today
 - 9pm-midnight PT: uses afternoon forecast for tomorrow
 - After midnight: uses afternoon forecast for today (new calendar day)
 
-Haiku prompts incorporate weather-grounded imagery, time-of-day awareness, and beer/brewery references while avoiding invented sensory details.
 
-See [HAIKU-GENERATOR.md](./HAIKU-GENERATOR.md) for detailed documentation on configuration, usage, and implementation.
 
 ## AI Vision Analysis
 
@@ -305,7 +286,6 @@ See [ERROR-HANDLING.md](./ERROR-HANDLING.md) for the complete error handling str
 
 ## Testing Strategy
 
-The project includes a comprehensive test suite with 196 tests covering unit, integration, vision analysis, haiku generation, and error scenarios.
 
 See [TESTING.md](./TESTING.md) for the complete testing strategy and guide.
 

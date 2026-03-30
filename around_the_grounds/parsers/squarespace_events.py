@@ -64,8 +64,92 @@ class SquarespaceEventsParser(BaseParser):
 
     async def _parse_via_collection_api(self, session: aiohttp.ClientSession) -> List[FoodTruckEvent]:
         # Implementation similar to BaleBreakerParser for robustness
-        # But for Ridgecrest, ?format=json is confirmed to work.
-        return []
+        collection_id = None
+        try:
+            soup = await self.fetch_page(session, self.brewery.url)
+            if soup:
+                collection_id = self._extract_collection_id(soup)
+        except Exception as e:
+            self.logger.error(f"Error fetching main page for {self.brewery.key}: {str(e)}")
+
+        if not collection_id:
+            return []
+
+        events = []
+        try:
+            from datetime import timedelta
+            now = datetime.now()
+            # Get current month and next month
+            months_to_fetch = [
+                (now.year, now.month),
+                ((now + timedelta(days=32)).year, (now + timedelta(days=32)).month),
+            ]
+
+            month_names = ["January", "February", "March", "April", "May", "June", 
+                           "July", "August", "September", "October", "November", "December"]
+
+            # Try both possible API endpoints
+            # 1. api/open/GetItemsByMonth (used by Bale Breaker)
+            # 2. api/content/v1/GetItemsByMonth (modern version)
+            
+            # Extract domain from URL
+            from urllib.parse import urlparse
+            parsed_url = urlparse(self.brewery.url)
+            base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+
+            for year, month in months_to_fetch:
+                month_str = f"{month_names[month - 1]}-{year}"
+                
+                # We'll try the /api/open endpoint first
+                api_url = f"{base_url}/api/open/GetItemsByMonth?month={month_str}&collectionId={collection_id}"
+                self.logger.debug(f"Fetching calendar data from: {api_url}")
+
+                async with session.get(api_url) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        for item in data:
+                            title = item.get("title", "").strip()
+                            category = self._get_category(title)
+                            if category is None:
+                                continue
+                            event = self._parse_json_item(item, category)
+                            if event:
+                                events.append(event)
+                    else:
+                        self.logger.warning(f"API request failed with status {response.status} for {api_url}")
+
+            return self.filter_valid_events(events)
+        except Exception as e:
+            self.logger.error(f"Error in _parse_via_collection_api for {self.brewery.key}: {str(e)}")
+            return []
+
+    def _extract_collection_id(self, soup: Any) -> Optional[str]:
+        """Extract the Squarespace calendar collection ID from the page"""
+        try:
+            # Look for calendar block with data-block-json attribute
+            calendar_blocks = soup.find_all("div", {"class": "calendar-block"})
+            for block in calendar_blocks:
+                data_json = block.get("data-block-json")
+                if data_json:
+                    import html
+                    decoded_json = html.unescape(data_json)
+                    block_data = json.loads(decoded_json)
+                    collection_id = block_data.get("collectionId")
+                    if collection_id:
+                        return str(collection_id)
+
+            # Fallback: look in script tags for collection info
+            scripts = soup.find_all("script")
+            for script in scripts:
+                if script.string and "collectionId" in script.string:
+                    text = script.string
+                    match = re.search(r'"collectionId":"([^"]+)"', text)
+                    if match:
+                        return match.group(1)
+            return None
+        except Exception as e:
+            self.logger.error(f"Error extracting collection ID: {str(e)}")
+            return None
 
     def _parse_json_item(self, item: dict, category: str = "food-truck") -> Optional[FoodTruckEvent]:
         try:

@@ -28,6 +28,7 @@ class ParserRegistry:
         "broadview-taphouse-events": GoogleCalendarParser,
         "ridgecrest-pub": SquarespaceEventsParser,
         "ravenna-brewing": SquarespaceEventsParser,
+        "halcyon-brewing": SquarespaceEventsParser,
         "lucky-envelope": LuckyEnvelopeParser,
         "shoreline-cc": WaFoodTrucksParser,
         "hellbent": HellbentParser,
