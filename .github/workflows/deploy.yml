@@ -71,6 +71,9 @@ jobs:
 
       - name: Post-process for GitHub Pages
         run: |
+          # Ensure data.json is in the build output (sometimes Nuxt SSG excludes it if not used in a way it detects)
+          cp frontend/public/data.json frontend/.output/public/data.json
+          
           # Ensure Jekyll doesn't run on the output
           touch frontend/.output/public/.nojekyll
           # List files for debugging
