@@ -120,7 +120,6 @@ class ChucksGreenwoodParser(BaseParser):
     def _parse_csv_row(self, row: List[str]) -> Optional[FoodTruckEvent]:
         """Parse a single CSV row into a FoodTruckEvent."""
         if len(row) < 7:
-            self.logger.debug(f"Row too short: {len(row)} columns, expected at least 7")
             return None
 
         # Skip empty rows
@@ -135,7 +134,7 @@ class ChucksGreenwoodParser(BaseParser):
             event_type = "Event"
         elif "food truck" in event_type_lower:
             event_type = "Food Truck"
-        elif not event_type_raw:
+        elif not event_type_raw and (len(row) > 6 and row[6].strip()):
             # Fallback if column F is empty but column G has content
             event_type = "Food Truck"
         else:
@@ -155,15 +154,19 @@ class ChucksGreenwoodParser(BaseParser):
         # Parse vendor name and meal type from event name
         food_truck_name, meal_type = self._extract_vendor_and_meal(event_name)
         if not food_truck_name:
+            self.logger.debug(f"Row failed: could not extract vendor from '{event_name}'")
             return None
 
         # Parse date from columns A and B (day of week and "Month Date")
         event_date = self._parse_date_from_month_date_column(row[0], row[1])
         if not event_date:
+            self.logger.debug(f"Row failed: could not parse date from '{row[0]}', '{row[1]}'")
             return None
 
         # Set times based on meal type
         start_time, end_time = self._get_times_for_meal(event_date, meal_type)
+
+        self.logger.debug(f"Successfully parsed: {event_date.date()} - {food_truck_name} ({category})")
 
         return FoodTruckEvent(
             brewery_key=self.brewery.key,
@@ -191,6 +194,10 @@ class ChucksGreenwoodParser(BaseParser):
                 if prefix in ["brunch", "dinner"]:
                     meal_type = prefix
                     vendor_name = parts[1].strip()
+        
+        # Ensure we didn't end up with an empty name
+        if not vendor_name:
+            return None, None
 
         return vendor_name, meal_type
 
@@ -252,24 +259,18 @@ class ChucksGreenwoodParser(BaseParser):
             now_pacific = now_in_pacific_naive()
             current_year = now_pacific.year
             current_month = now_pacific.month
-            current_day = now_pacific.day
 
-            # If month is earlier than current month, it's likely next year 
-            # UNLESS it's just the end of the previous month and we're in the first few days of the next
-            # Chuck's often has the last few days of the previous month in the sheet
+            # Simple robust logic: 
+            # 1. Start with current year
+            # 2. If month is Dec and current is Jan, it's likely last year
+            # 3. If month is Jan and current is Dec, it's likely next year
+            # 4. Otherwise, use current year (covers most cases including end-of-month rollovers)
             
             year = current_year
-            if month_num < current_month:
-                # If we're in Jan and the month is Dec, it's last year (past)
-                if current_month == 1 and month_num == 12:
-                    year = current_year - 1
-                # Otherwise, it's likely next year
-                else:
-                    year = current_year + 1
-            elif month_num > current_month:
-                # If we're in Dec and the month is Jan, it's next year
-                if current_month == 12 and month_num == 1:
-                    year = current_year + 1
+            if current_month == 1 and month_num == 12:
+                year = current_year - 1
+            elif current_month == 12 and month_num == 1:
+                year = current_year + 1
 
             return parse_date_with_pacific_context(year, month_num, day_num)
 
