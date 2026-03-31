@@ -32,6 +32,7 @@ class ParserRegistry:
         "broadview-taphouse": SeattleFoodTruckParser,
         "broadview-taphouse-events": GoogleCalendarParser,
         "ridgecrest-pub": SquarespaceEventsParser,
+        "ridgecrest-events": SquarespaceEventsParser,
         "ravenna-brewing": SquarespaceEventsParser,
         "halcyon-brewing": SquarespaceEventsParser,
         "flying-bike": GoogleCalendarParser,

@@ -55,6 +55,19 @@
       }
     },
     {
+      "key": "ridgecrest-events",
+      "name": "Ridgecrest Public House",
+      "url": "https://www.ridgecrest.pub/calendars",
+      "website_url": "https://www.ridgecrest.pub/",
+      "parser_config": {
+        "note": "General events calendar",
+        "api_type": "squarespace_events",
+        "category_patterns": {
+          "Trivia": "trivia"
+        }
+      }
+    },
+    {
       "key": "shoreline-cc",
       "name": "Shoreline Community College",
       "url": "https://wafoodtrucks.org/shorelinecc",
