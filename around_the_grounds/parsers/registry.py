@@ -13,6 +13,7 @@ from .seattle_food_truck import SeattleFoodTruckParser
 from .squarespace_events import SquarespaceEventsParser
 from .stoup_ballard import StoupBallardParser
 from .urban_family import UrbanFamilyParser
+from .watershed import WatershedParser
 from .wa_food_trucks import WaFoodTrucksParser
 from .wheelie_pop import WheeliePopParser
 
@@ -34,7 +35,7 @@ class ParserRegistry:
         "ravenna-brewing": SquarespaceEventsParser,
         "halcyon-brewing": SquarespaceEventsParser,
         "flying-bike": GoogleCalendarParser,
-        "watershed": GoogleCalendarParser,
+        "watershed": WatershedParser,
         "lucky-envelope": LuckyEnvelopeParser,
         "shoreline-cc": WaFoodTrucksParser,
         "hellbent": GoogleCalendarParser,

@@ -46,8 +46,6 @@ jobs:
         run: |
           mkdir -p frontend/public
           uv run around-the-grounds --preview
-          echo "Files in frontend/public after scrape:"
-          ls -l frontend/public/
 
       # --- Step 2: Build Nuxt Frontend ---
       - name: Setup Node
@@ -70,9 +68,6 @@ jobs:
           fi
           echo "Using NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL"
           cd frontend && npm run generate
-          
-          echo "Files in frontend/public after generate:"
-          ls -l public/ || ls -l ../public/ || true
         env:
           NUXT_APP_BASE_URL: ${{ vars.NUXT_APP_BASE_URL }}
 
@@ -91,9 +86,6 @@ jobs:
           
           # Ensure Jekyll doesn't run on the output
           touch frontend/.output/public/.nojekyll
-          # List files for debugging
-          echo "Build output structure:"
-          ls -R frontend/.output/public/
 
       # --- Step 3: Deploy to Pages ---
       - name: Setup Pages

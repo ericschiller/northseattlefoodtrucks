@@ -141,11 +141,23 @@ class SquarespaceEventsParser(BaseParser):
             # Fallback: look in script tags for collection info
             scripts = soup.find_all("script")
             for script in scripts:
-                if script.string and "collectionId" in script.string:
-                    text = script.string
-                    match = re.search(r'"collectionId":"([^"]+)"', text)
+                if not script.string:
+                    continue
+                
+                text = script.string
+                
+                # Try common patterns in SQUARESPACE_CONTEXT or other scripts
+                patterns = [
+                    r'"collectionId"\s*:\s*"([^"]+)"',
+                    r'"collection"\s*:\s*\{[^}]*"id"\s*:\s*"([^"]+)"',
+                    r'collectionId\s*=\s*"([^"]+)"',
+                ]
+                
+                for pattern in patterns:
+                    match = re.search(pattern, text)
                     if match:
                         return match.group(1)
+            
             return None
         except Exception as e:
             self.logger.error(f"Error extracting collection ID: {str(e)}")
