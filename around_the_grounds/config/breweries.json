@@ -50,7 +50,9 @@
           "MOM'S NIGHT": "community",
           "DAD'S NIGHT": "community",
           "Game Night": "community",
-          "Art Show": "community"
+          "Art Show": "community",
+          "Bai Tong": "food-truck",
+          "Macho Burger": "food-truck"
         }
       }
     },
