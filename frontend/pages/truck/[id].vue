@@ -49,7 +49,8 @@ const truckInfo = computed(() => {
 })
 
 const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr + 'T12:00:00-08:00')
+  const dateKey = dateStr.split('T')[0]
+  const date = new Date(dateKey + 'T12:00:00-08:00')
   return date.toLocaleDateString('en-US', { 
     weekday: 'short', 
     month: 'short', 
