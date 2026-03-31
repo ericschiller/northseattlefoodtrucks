@@ -32,21 +32,20 @@ const groupedEvents = computed(() => {
   // Get today's date in Seattle timezone for filtering
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
 
-  const groups: Record<string, FoodTruckEvent[]> = {}
-  list.forEach(event => {
-    const dateKey = event.date.split('T')[0]
-    
-    // Filter out entries in the past
-    if (dateKey < today) return
+  // Sort list by date first to ensure stable global indexing
+  const sortedList = [...list]
+    .filter(event => event.date.split('T')[0] >= today)
+    .sort((a, b) => a.date.localeCompare(b.date))
 
+  const groups: Record<string, (FoodTruckEvent & { globalIndex: number })[]> = {}
+  
+  sortedList.forEach((event, idx) => {
+    const dateKey = event.date.split('T')[0]
     if (!groups[dateKey]) groups[dateKey] = []
-    groups[dateKey].push(event)
+    groups[dateKey].push({ ...event, globalIndex: idx })
   })
 
-  return Object.keys(groups).sort().reduce((acc, key) => {
-    acc[key] = groups[key]
-    return acc
-  }, {} as Record<string, FoodTruckEvent[]>)
+  return groups
 })
 
 const formatDateParts = (dateStr: string) => {
@@ -117,6 +116,7 @@ const formatUpdatedDate = (isoString: string) => {
           <TruckItem
             v-for="(event, eIdx) in events"
             :key="eIdx"
+            :index="event.globalIndex"
             :name="event.vendor"
             :location="event.location"
             :location-url="event.location_url"

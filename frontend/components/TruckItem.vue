@@ -10,6 +10,7 @@ const props = defineProps<{
   category?: string
   isVisionExtracted?: boolean
   isClickable?: boolean
+  index?: number
 }>()
 
 const router = useRouter()
@@ -29,22 +30,16 @@ const badgeLabel = computed(() => {
 const badgeClasses = computed(() => {
   const cat = (props.category || '').toLowerCase()
   const desc = (props.description || '').toLowerCase()
-  const name = props.name.toLowerCase()
   
+  // Specific category logic still applies for color consistency of special events
   if (cat.includes('trivia') || desc.includes('trivia')) {
     return 'bg-[#FCE7F3] text-[#9D174D]' // Pink
   }
   if (cat.includes('bingo') || desc.includes('bingo') || desc.includes('music') || desc.includes('coloring')) {
     return 'bg-[#F5D0FE] text-[#701A75]' // Fuchsia
   }
-  if (cat.includes('community') || desc.includes('meetup') || desc.includes('club')) {
-    return 'bg-[#DBEAFE] text-[#1E40AF]' // Blue
-  }
-  if (desc.includes('special') || desc.includes('limited')) {
-    return 'bg-[#FFEDD5] text-[#9A3412]' // Orange
-  }
   
-  // For food trucks, use a deterministic color based on name
+  // For everything else, use the index-based rotation
   const colors = [
     'bg-[#D1FAE5] text-[#065F46]', // Mint
     'bg-[#DBEAFE] text-[#1E40AF]', // Blue
@@ -53,12 +48,8 @@ const badgeClasses = computed(() => {
     'bg-[#F5D0FE] text-[#701A75]'  // Fuchsia
   ]
   
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const index = Math.abs(hash) % colors.length
-  return colors[index]
+  const rotationIndex = (props.index || 0) % colors.length
+  return colors[rotationIndex]
 })
 </script>
 
