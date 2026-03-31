@@ -25,6 +25,26 @@ const badgeLabel = computed(() => {
   if (props.category) return props.category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
   return 'Food Truck'
 })
+
+const badgeClasses = computed(() => {
+  const label = badgeLabel.value.toLowerCase()
+  
+  if (label.includes('trivia')) {
+    return 'bg-[#FCE7F3] text-[#9D174D]' // Pink
+  }
+  if (label.includes('bingo') || label.includes('music') || label.includes('coloring')) {
+    return 'bg-[#F5D0FE] text-[#701A75]' // Fuchsia
+  }
+  if (label.includes('community') || label.includes('meetup') || label.includes('club')) {
+    return 'bg-[#DBEAFE] text-[#1E40AF]' // Blue
+  }
+  if (label.includes('special') || label.includes('limited')) {
+    return 'bg-[#FFEDD5] text-[#9A3412]' // Orange
+  }
+  
+  // Default Mint for food trucks and others
+  return 'bg-[#D1FAE5] text-[#065F46]'
+})
 </script>
 
 <template>
@@ -56,7 +76,7 @@ const badgeLabel = computed(() => {
       </div>
       <div class="mt-6 md:mt-0 text-left md:text-right">
         <span class="font-label text-[0.875rem] font-bold uppercase tracking-widest text-[#64748B] block mb-3">{{ time }}</span>
-        <span class="bg-[#D1FAE5] text-[#065F46] text-[0.75rem] px-4 py-1.5 rounded-full font-bold uppercase tracking-widest">
+        <span :class="[badgeClasses, 'text-[0.75rem] px-4 py-1.5 rounded-full font-bold uppercase tracking-widest']">
           {{ badgeLabel }}<span v-if="isVisionExtracted"> · AI</span>
         </span>
       </div>
