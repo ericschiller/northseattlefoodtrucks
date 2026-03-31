@@ -34,7 +34,7 @@ class BarkingDogParser(BaseParser):
                         date=current_date.replace(hour=0, minute=0, second=0, microsecond=0),
                         start_time=current_date.replace(hour=19, minute=0, second=0, microsecond=0),
                         end_time=current_date.replace(hour=21, minute=0, second=0, microsecond=0),
-                        description="Popular neighborhood trivia featuring prizes, food, and drinks.",
+                        description="Trivia",
                         category="trivia"
                     )
                 )
