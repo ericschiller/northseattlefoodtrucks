@@ -27,18 +27,19 @@ const badgeLabel = computed(() => {
 })
 
 const badgeClasses = computed(() => {
-  const label = badgeLabel.value.toLowerCase()
+  const cat = (props.category || '').toLowerCase()
+  const desc = (props.description || '').toLowerCase()
   
-  if (label.includes('trivia')) {
+  if (cat.includes('trivia') || desc.includes('trivia')) {
     return 'bg-[#FCE7F3] text-[#9D174D]' // Pink
   }
-  if (label.includes('bingo') || label.includes('music') || label.includes('coloring')) {
+  if (cat.includes('bingo') || desc.includes('bingo') || desc.includes('music') || desc.includes('coloring')) {
     return 'bg-[#F5D0FE] text-[#701A75]' // Fuchsia
   }
-  if (label.includes('community') || label.includes('meetup') || label.includes('club')) {
+  if (cat.includes('community') || desc.includes('meetup') || desc.includes('club')) {
     return 'bg-[#DBEAFE] text-[#1E40AF]' // Blue
   }
-  if (label.includes('special') || label.includes('limited')) {
+  if (desc.includes('special') || desc.includes('limited')) {
     return 'bg-[#FFEDD5] text-[#9A3412]' // Orange
   }
   
