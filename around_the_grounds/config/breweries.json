@@ -126,7 +126,10 @@
         ],
         "category_patterns": {
           "Trivia": "trivia",
-          "Bingo": "community"
+          "Bingo": "community",
+          "Chess Club": "community",
+          "Coloring Night": "community",
+          "Adult Coloring Night": "community"
         }
       }
     },
