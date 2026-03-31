@@ -213,18 +213,17 @@ class ScraperCoordinator:
         Filter events to next 7 days and sort by date.
         Uses Seattle timezone to ensure events are filtered correctly regardless of server location.
         """
-        # Use Seattle timezone (PST/PDT) consistently
-        seattle_tz = timezone(
-            timedelta(hours=-8)
-        )  # PST (PDT would be -7, but keeping simple)
-        now = datetime.now(seattle_tz)
-        one_week_later = now + timedelta(days=7)
+        # Use Seattle timezone (PST/PDT) context
+        from ..utils.timezone_utils import now_in_pacific_naive
+        now_pacific = now_in_pacific_naive()
+        today = now_pacific.date()
+        one_week_later = today + timedelta(days=7)
 
         # Filter to next 7 days
         filtered_events = [
             event
             for event in events
-            if now.date() <= event.date.date() <= one_week_later.date()
+            if today <= event.date.date() <= one_week_later
         ]
 
         # Sort by date, then by start time

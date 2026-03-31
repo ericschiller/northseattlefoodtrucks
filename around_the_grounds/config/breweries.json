@@ -40,14 +40,17 @@
         "note": "Squarespace events collection JSON",
         "api_type": "squarespace_events",
         "exclude_patterns": [
-          "food trucks"
+          "food trucks",
+          "Geeks Who Drink"
         ],
         "category_patterns": {
           "Trivia": "trivia",
           "Knit Nite": "community",
           "Run Club": "community",
           "MOM'S NIGHT": "community",
-          "DAD'S NIGHT": "community"
+          "DAD'S NIGHT": "community",
+          "Game Night": "community",
+          "Art Show": "community"
         }
       }
     },
