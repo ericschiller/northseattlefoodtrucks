@@ -1,6 +1,7 @@
 from typing import Dict, Type
 
 from .bale_breaker import BaleBreakerParser
+from .barking_dog import BarkingDogParser
 from .base import BaseParser
 from .chucks_greenwood import ChucksGreenwoodParser
 from .google_calendar import GoogleCalendarParser
@@ -18,6 +19,7 @@ from .wheelie_pop import WheeliePopParser
 class ParserRegistry:
     _parsers: Dict[str, Type[BaseParser]] = {
         "stoup-ballard": StoupBallardParser,
+        "barking-dog": BarkingDogParser,
         "yonder-balebreaker": SquarespaceEventsParser,
         "obec-brewing": ObecBrewingParser,
         "urban-family": UrbanFamilyParser,

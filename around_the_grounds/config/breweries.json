@@ -114,6 +114,16 @@
       "parser_config": {
         "note": "Public Google Calendar iCal feed for events"
       }
+    },
+    {
+      "key": "barking-dog",
+      "name": "The Barking Dog Alehouse",
+      "url": "https://thebarkingdogalehouse.com/events",
+      "website_url": "https://thebarkingdogalehouse.com/",
+      "parser_config": {
+        "note": "Static recurring events (site protected by Cloudflare)",
+        "api_type": "barking-dog"
+      }
     }
   ]
 }
