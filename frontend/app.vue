@@ -124,7 +124,7 @@ const formatUpdatedDate = (isoString: string) => {
               :name="event.vendor"
               :location="event.location"
               :location-url="event.location_url"
-              :time="`${event.start_time} — ${event.end_time}`"
+              :time="event.start_time && event.end_time ? `${event.start_time} — ${event.end_time}` : 'All Day'"
               :description="event.description"
               :category="event.category"
 :is-vision-extracted="event.extraction_method === 'vision'"
