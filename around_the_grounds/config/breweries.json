@@ -51,6 +51,10 @@
           "DAD'S NIGHT": "community",
           "Game Night": "community",
           "Art Show": "community",
+          "Urbanist Shoreline Meetup": "community",
+          "Chess Club": "community",
+          "Adult Coloring Night": "community",
+          "Coloring Night": "community",
           "Bai Tong": "food-truck",
           "Macho Burger": "food-truck",
           "Oskars Pizza": "food-truck",
@@ -58,20 +62,8 @@
           "El Gran Taco": "food-truck",
           "Outsider BBQ": "food-truck",
           "Stanford's": "food-truck",
-          "Where Ya At Matt": "food-truck"
-        }
-      }
-    },
-    {
-      "key": "ridgecrest-events",
-      "name": "Ridgecrest Public House",
-      "url": "https://www.ridgecrest.pub/calendars",
-      "website_url": "https://www.ridgecrest.pub/",
-      "parser_config": {
-        "note": "General events calendar",
-        "api_type": "squarespace_events",
-        "category_patterns": {
-          "Trivia": "trivia"
+          "Where Ya At Matt": "food-truck",
+          "Trio Truck": "food-truck"
         }
       }
     },

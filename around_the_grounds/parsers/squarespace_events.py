@@ -169,9 +169,13 @@ class SquarespaceEventsParser(BaseParser):
 
     def _parse_json_item(self, item: dict, category: str = "food-truck") -> Optional[FoodTruckEvent]:
         try:
+            import html
             title = item.get("title", "").strip()
             if not title:
                 return None
+            
+            title = html.unescape(title)
+            title = re.sub(r"\s+", " ", title)
 
             # Squarespace timestamps are in milliseconds
             start_ts = item.get("startDate")
