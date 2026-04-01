@@ -56,6 +56,9 @@ around-the-grounds = "around_the_grounds.main:main"
 Homepage = "https://github.com/ericschiller/northseattlebeer"
 Repository = "https://github.com/ericschiller/northseattlebeer"
 
+[tool.hatch.build.targets.wheel]
+packages = ["around_the_grounds"]
+
 [tool.black]
 line-length = 88
 
