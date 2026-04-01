@@ -55,6 +55,11 @@
           "Chess Club": "community",
           "Adult Coloring Night": "community",
           "Coloring Night": "community",
+          "music": "live-music",
+          "Jazz": "live-music",
+          "live music": "live-music",
+          "concert": "live-music",
+          "Choir": "community",
           "Bai Tong": "food-truck",
           "Macho Burger": "food-truck",
           "Oskars Pizza": "food-truck",
@@ -101,7 +106,12 @@
         "category_patterns": {
           "Trivia": "trivia",
           "GAME NIGHT": "community",
-          "MEET-N-GREET": "community"
+          "MEET-N-GREET": "community",
+          "CHOIR": "community",
+          "JAZZ": "live-music",
+          "music": "live-music",
+          "concert": "live-music",
+          "live music": "live-music"
         }
       }
     },
@@ -121,7 +131,12 @@
           "Bingo": "community",
           "Chess Club": "community",
           "Coloring Night": "community",
-          "Adult Coloring Night": "community"
+          "Adult Coloring Night": "community",
+          "music": "live-music",
+          "Jazz": "live-music",
+          "live music": "live-music",
+          "concert": "live-music",
+          "Choir": "community"
         }
       }
     },

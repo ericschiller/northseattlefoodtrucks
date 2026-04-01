@@ -18,10 +18,10 @@ _PACIFIC = ZoneInfo("America/Los_Angeles")
 _WEEKDAY = {"MO": 0, "TU": 1, "WE": 2, "TH": 3, "FR": 4, "SA": 5, "SU": 6}
 
 _CATEGORY_RULES: List[Tuple[str, str]] = [
-    (r"live\s*music|concert|open\s*mic|jam\s*session", "live-music"),
+    (r"live\s*music|concert|open\s*mic|jam\s*session|jazz", "live-music"),
     (r"trivia", "trivia"),
     (r"run(ning)?\s*club", "community"),
-    (r"yarnaholics|knitting", "community"),
+    (r"yarnaholics|knitting|choir", "community"),
     (r"food\s*truck", "food-truck"),
 ]
 
