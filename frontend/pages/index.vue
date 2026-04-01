@@ -75,7 +75,10 @@ const formatUpdatedDate = (isoString: string) => {
 
     <main class="pb-12 max-w-4xl mx-auto">
       <!-- Filter Toggle Section -->
-      <div class="px-6 pt-8 pb-12 flex justify-between items-center">
+      <div class="px-6 pt-8 pb-12 flex flex-col md:flex-row-reverse md:justify-between md:items-center gap-4">
+        <div v-if="data?.updated" class="text-sm font-label font-bold uppercase tracking-widest text-on-surface-variant/60">
+          Updated: {{ formatUpdatedDate(data.updated) }}
+        </div>
         <div class="flex gap-3">
           <button 
             @click="currentTab = 'trucks'"
@@ -91,9 +94,6 @@ const formatUpdatedDate = (isoString: string) => {
               currentTab === 'events' ? 'bg-on-primary-fixed text-primary-container' : 'bg-surface-container-low text-on-surface-variant'
             ]"
           >EVENTS</button>
-        </div>
-        <div v-if="data?.updated" class="text-sm font-label font-bold uppercase tracking-widest text-on-surface-variant/60">
-          Updated: {{ formatUpdatedDate(data.updated) }}
         </div>
       </div>
 

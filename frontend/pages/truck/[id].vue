@@ -102,11 +102,11 @@ const formatDate = (dateStr: string) => {
             class="bg-surface-container-lowest rounded-xl p-5 shadow-[0_4px_20px_rgba(0,103,94,0.06)] border border-outline-variant/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
           >
             <div>
-              <div class="flex items-center gap-3 mb-2">
+              <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 mb-2">
                 <span class="font-label text-[1rem] font-bold text-on-surface-variant/60">
                   {{ formatDate(stop.date) }}
                 </span>
-                <span class="h-1 w-1 rounded-full bg-outline-variant/30"></span>
+                <span class="hidden md:block h-1 w-1 rounded-full bg-outline-variant/30"></span>
                 <span class="font-label text-[1rem] font-bold text-primary uppercase tracking-widest">
                   {{ stop.start_time }} — {{ stop.end_time }}
                 </span>
