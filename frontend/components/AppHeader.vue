@@ -5,14 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <header class="mb-20">
-    <div class="flex items-center justify-between border-b border-outline/10 pb-8">
-      <div>
-        <h1 class="font-headline text-[2rem] font-bold uppercase tracking-[0.1em] text-[#1E293B]">North Seattle Beer</h1>
-      </div>
-      <div v-if="updatedDate" class="text-sm font-label uppercase tracking-widest text-on-surface-variant">
-        Updated: {{ updatedDate }}
-      </div>
-    </div>
+  <header class="bg-[#00C2B2] dark:bg-[#00675e] text-white flex justify-center items-center px-6 py-6 w-full docked full-width shadow-lg shadow-teal-900/20 z-50">
+    <h1 class="font-headline font-black text-[2.25rem]">North Seattle Beer</h1>
   </header>
 </template>

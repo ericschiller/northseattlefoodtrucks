@@ -29,10 +29,8 @@ const groupedEvents = computed(() => {
     : data.value?.other_events
   if (!list) return {}
 
-  // Get today's date in Seattle timezone for filtering
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
 
-  // Sort list by date first to ensure stable global indexing
   const sortedList = [...list]
     .filter(event => event.date.split('T')[0] >= today)
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -72,46 +70,51 @@ const formatUpdatedDate = (isoString: string) => {
 </script>
 
 <template>
-  <main class="pt-16 pb-24 px-6 md:px-12 max-w-4xl mx-auto min-h-screen">
-    <AppHeader :updated-date="data?.updated ? formatUpdatedDate(data.updated) : undefined" />
+  <div class="bg-surface min-h-screen">
+    <AppHeader />
 
-    <!-- Loading State -->
-    <div v-if="pending" class="py-20 text-center">
-      <p class="font-label text-sm uppercase tracking-[0.5em] text-primary-mint animate-pulse">Accessing Archive...</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="py-20 text-center border-b border-outline/10">
-      <p class="font-headline text-2xl font-bold uppercase text-error mb-2">Archive Interrupted</p>
-      <p class="font-label text-sm uppercase tracking-widest text-on-surface-variant">System synchronization failed.</p>
-    </div>
-
-    <div v-else>
-      <!-- Tab Toggle -->
-      <div class="flex gap-3 mt-12 mb-0">
-        <button
-          @click="currentTab = 'trucks'"
-          :class="currentTab === 'trucks'
-            ? 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-primary-mint-dark text-white border border-primary-mint-dark font-bold transition-all shadow-sm'
-            : 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-[#F8F8FF] text-[#64748B] border border-[#64748B] font-bold transition-all hover:bg-white'"
-        >TRUCKS</button>
-        <button
-          @click="currentTab = 'events'"
-          :class="currentTab === 'events'
-            ? 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-primary-mint-dark text-white border border-primary-mint-dark font-bold transition-all shadow-sm'
-            : 'px-5 py-2 rounded-lg font-label text-xs uppercase tracking-[0.4em] bg-[#F8F8FF] text-[#64748B] border border-[#64748B] font-bold transition-all hover:bg-white'"
-        >EVENTS</button>
+    <main class="pb-12 max-w-4xl mx-auto">
+      <!-- Filter Toggle Section -->
+      <div class="px-6 pt-8 pb-12 flex justify-between items-center">
+        <div class="flex gap-3">
+          <button 
+            @click="currentTab = 'trucks'"
+            :class="[
+              'px-8 py-3 rounded-xl font-label font-bold text-sm tracking-widest active:scale-95 duration-150 transition-colors',
+              currentTab === 'trucks' ? 'bg-on-primary-fixed text-primary-container' : 'bg-surface-container-low text-on-surface-variant'
+            ]"
+          >TRUCKS</button>
+          <button 
+            @click="currentTab = 'events'"
+            :class="[
+              'px-8 py-3 rounded-xl font-label font-bold text-sm tracking-widest active:scale-95 duration-150 transition-colors',
+              currentTab === 'events' ? 'bg-on-primary-fixed text-primary-container' : 'bg-surface-container-low text-on-surface-variant'
+            ]"
+          >EVENTS</button>
+        </div>
+        <div v-if="data?.updated" class="text-sm font-label font-bold uppercase tracking-widest text-on-surface-variant/60">
+          Updated: {{ formatUpdatedDate(data.updated) }}
+        </div>
       </div>
 
-      <!-- Content Grid -->
-      <div class="space-y-16 mt-10">
+      <!-- Loading State -->
+      <div v-if="pending" class="px-6 py-20 text-center">
+        <p class="font-label text-sm uppercase tracking-[0.5em] text-primary animate-pulse">Syncing Brewery Data...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="px-6 py-20 text-center">
+        <p class="font-headline text-2xl font-bold uppercase text-error mb-2">Sync Interrupted</p>
+        <p class="font-label text-sm uppercase tracking-widest text-on-surface-variant">Check connection.</p>
+      </div>
+
+      <div v-else class="px-6 space-y-8">
+        <!-- Schedule Canvas -->
         <DaySection
           v-for="(events, dateKey) in groupedEvents"
           :key="dateKey"
           :day-name="formatDateParts(dateKey).dayName"
           :month-day="formatDateParts(dateKey).monthDay"
-          :count="(events as FoodTruckEvent[]).length"
-          :count-label="currentTab === 'trucks' ? ((events as FoodTruckEvent[]).length === 1 ? 'TRUCK' : 'TRUCKS') : ((events as FoodTruckEvent[]).length === 1 ? 'EVENT' : 'EVENTS')"
         >
           <TruckItem
             v-for="(event, eIdx) in events"
@@ -127,15 +130,16 @@ const formatUpdatedDate = (isoString: string) => {
             :is-clickable="event.category === 'food-truck' || !event.category"
           />
         </DaySection>
-      </div>
 
-      <!-- Errors Note -->
-      <div v-if="data?.errors?.length" class="mt-12 space-y-2 p-6 bg-surface-container-low border border-error/10">
-        <p class="font-label text-[9px] uppercase tracking-widest text-error font-bold mb-2">Integrity Warnings:</p>
-        <p v-for="(err, idx) in data.errors" :key="idx" class="text-[9px] uppercase tracking-tighter text-on-surface-variant">
-          • {{ err }}
-        </p>
+
+        <!-- Integrity Warnings -->
+        <div v-if="data?.errors?.length" class="mt-12 space-y-2 p-6 bg-surface-container-low border border-error/10 rounded-xl">
+          <p class="font-label text-[9px] uppercase tracking-widest text-error font-bold mb-2">Integrity Warnings:</p>
+          <p v-for="(err, idx) in data.errors" :key="idx" class="text-[9px] uppercase tracking-tighter text-on-surface-variant">
+            • {{ err }}
+          </p>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </template>

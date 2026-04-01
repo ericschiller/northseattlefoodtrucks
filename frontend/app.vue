@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-surface text-on-surface min-h-screen font-body selection:bg-primary-mint/30">
+  <div class="bg-surface text-on-surface min-h-screen font-body selection:bg-primary/30">
     <NuxtPage />
     <AppFooter />
   </div>
@@ -11,17 +11,22 @@
   vertical-align: middle;
 }
 
-/* Custom scrollbar for a more integrated feel */
+body {
+  background-color: #d2fffe;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f9fffb;
+  background: #d2fffe;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4e0db;
+  background: #7db7b7;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #aab4b0;
+  background: #468080;
 }
 </style>

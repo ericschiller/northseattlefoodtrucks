@@ -27,19 +27,7 @@ const badgeLabel = computed(() => {
   return 'Food Truck'
 })
 
-const badgeClasses = computed(() => {
-  const cat = (props.category || '').toLowerCase()
-  const desc = (props.description || '').toLowerCase()
-  
-  // Specific category logic still applies for color consistency of special events
-  if (cat.includes('trivia') || desc.includes('trivia')) {
-    return 'bg-[#FCE7F3] text-[#9D174D]' // Pink
-  }
-  if (cat.includes('bingo') || desc.includes('bingo') || desc.includes('music') || desc.includes('coloring')) {
-    return 'bg-[#F5D0FE] text-[#701A75]' // Fuchsia
-  }
-  
-  // For everything else, use the index-based rotation
+const badgeClasses = (idx: number) => {
   const colors = [
     'bg-[#D1FAE5] text-[#065F46]', // Mint
     'bg-[#DBEAFE] text-[#1E40AF]', // Blue
@@ -47,9 +35,16 @@ const badgeClasses = computed(() => {
     'bg-[#FCE7F3] text-[#9D174D]', // Pink
     'bg-[#F5D0FE] text-[#701A75]'  // Fuchsia
   ]
-  
-  const rotationIndex = (props.index || 0) % colors.length
-  return colors[rotationIndex]
+  return colors[(props.index + idx) % colors.length]
+}
+
+const tags = computed(() => {
+  const t = []
+  if (props.category) t.push(props.category.replace(/-/g, ' '))
+  if (props.description) t.push(props.description)
+  if (t.length === 0) t.push('Food Truck')
+  if (props.isVisionExtracted) t.push('AI Extracted')
+  return t
 })
 </script>
 
@@ -57,35 +52,35 @@ const badgeClasses = computed(() => {
   <div 
     @click="navigateToProfile"
     :class="[
-      'group p-8 rounded-lg bg-[#FFFFFF] border border-[#1E293B]/10 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-all duration-300 mb-4 last:mb-0',
-      isClickable ? 'hover:border-primary-mint/30 hover:shadow-md cursor-pointer' : 'cursor-default'
+      'bg-surface-container-lowest rounded-xl p-5 shadow-[0_4px_20px_rgba(0,103,94,0.06)] border border-outline-variant/10 transition-all duration-300',
+      isClickable ? 'hover:border-primary/30 hover:shadow-lg cursor-pointer active:scale-[0.98]' : 'cursor-default'
     ]"
   >
-    <div class="flex flex-col md:flex-row md:items-center justify-between">
-      <div class="max-w-md">
-        <h3
-          class="font-headline text-[1.25rem] font-bold tracking-tight text-[#1E293B] mb-2 transition-colors group-hover:text-primary-mint-dark"
-        >
-          {{ name }}
-        </h3>
-        <p class="font-body text-[#64748B] text-[0.875rem] flex items-center gap-2">
-          <span class="material-symbols-outlined text-base text-[#1E293B]">location_on</span>
-          <a
-            v-if="locationUrl"
-            :href="locationUrl"
-            target="_blank"
-            @click.stop
-            class="hover:text-[#F97316] transition-colors relative z-10"
-          >{{ location }}</a>
-          <span v-else>{{ location }}</span>
-        </p>
-      </div>
-      <div class="mt-6 md:mt-0 text-left md:text-right">
-        <span class="font-label text-[0.875rem] font-bold uppercase tracking-widest text-[#64748B] block mb-3">{{ time }}</span>
-        <span :class="[badgeClasses, 'text-[0.75rem] px-4 py-1.5 rounded-full font-bold uppercase tracking-widest']">
-          {{ badgeLabel }}<span v-if="isVisionExtracted"> · AI</span>
-        </span>
-      </div>
+    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-2 gap-1 md:gap-4">
+      <h3 class="font-headline text-2xl font-extrabold text-on-surface">{{ name }}</h3>
+      <span class="text-[1rem] font-bold text-on-surface-variant/60 font-label">{{ time }}</span>
+    </div>
+    
+    <div class="flex items-center text-on-surface-variant mb-5 gap-1.5">
+      <span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+      <span class="text-sm font-medium font-body">
+        <a
+          v-if="locationUrl"
+          :href="locationUrl"
+          target="_blank"
+          @click.stop
+          class="hover:text-primary transition-colors relative z-10"
+        >{{ location }}</a>
+        <span v-else>{{ location }}</span>
+      </span>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <span 
+        :class="[badgeClasses(0), 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider']"
+      >
+        {{ badgeLabel }}<span v-if="isVisionExtracted"> · AI</span>
+      </span>
     </div>
   </div>
 </template>

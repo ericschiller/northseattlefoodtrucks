@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { slugify } from '~/utils/slugify'
+
 const route = useRoute()
 const truckSlug = route.params.id as string
 
@@ -25,19 +27,16 @@ const { data, pending, error } = useFetch<WebData>(() => `${useRuntimeConfig().a
 const truckInfo = computed(() => {
   if (!data.value) return null
   
-  // Find all instances of this truck across all breweries
   const allEvents = [...data.value.truck_events, ...data.value.other_events]
   const stops = allEvents.filter(e => slugify(e.vendor) === truckSlug)
   
   if (stops.length === 0) return null
 
-  // Use the most common vendor name (handles minor spelling variations)
   const names = stops.map(s => s.vendor)
   const name = names.sort((a, b) => 
     names.filter(v => v === a).length - names.filter(v => v === b).length
   ).pop() || stops[0].vendor
 
-  // Filter out past events
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
   const upcomingStops = stops.filter(s => s.date.split('T')[0] >= today)
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -60,51 +59,66 @@ const formatDate = (dateStr: string) => {
 </script>
 
 <template>
-  <main class="pt-16 pb-24 px-6 md:px-12 max-w-4xl mx-auto min-h-screen">
-    <div class="mb-12">
+  <div class="bg-surface min-h-screen">
+    <AppHeader />
+
+    <main class="pt-8 pb-12 px-6 max-w-4xl mx-auto">
       <NuxtLink 
         to="/" 
-        class="inline-flex items-center gap-2 text-primary-mint-dark hover:text-primary-mint transition-colors font-label text-xs uppercase tracking-widest mb-8"
+        class="inline-flex items-center gap-2 text-primary hover:text-primary-dim transition-colors font-label text-xs uppercase tracking-[0.2em] mb-8 font-bold"
       >
         <span class="material-symbols-outlined text-sm">arrow_back</span>
         Back to Schedule
       </NuxtLink>
 
       <div v-if="pending" class="py-20 text-center">
-        <p class="font-label text-sm uppercase tracking-[0.5em] text-primary-mint animate-pulse">Loading Archive...</p>
+        <p class="font-label text-sm uppercase tracking-[0.5em] text-primary animate-pulse">Syncing Archive...</p>
       </div>
 
-      <div v-else-if="error || !truckInfo" class="py-20 text-center border-b border-outline/10">
-        <p class="font-headline text-2xl font-bold uppercase text-error mb-2">Truck Not Found</p>
-        <p class="font-label text-sm uppercase tracking-widest text-on-surface-variant">The requested archive entry is missing or invalid.</p>
+      <div v-else-if="error || !truckInfo" class="py-20 text-center">
+        <p class="font-headline text-2xl font-bold uppercase text-error mb-2">Archive entry missing</p>
+        <p class="font-label text-sm uppercase tracking-widest text-on-surface-variant">The requested truck could not be found.</p>
       </div>
 
       <div v-else>
-        <h1 class="font-headline text-4xl font-bold uppercase tracking-[0.1em] text-[#1E293B] mb-4">
+        <h1 class="font-headline text-4xl font-extrabold text-on-surface mb-2 uppercase tracking-tighter">
           {{ truckInfo.name }}
         </h1>
-        <p class="font-label text-sm uppercase tracking-widest text-[#64748B] mb-12">
-          Upcoming Stops in North Seattle
-        </p>
+        <div class="mb-12 flex flex-col gap-2">
+          <a 
+            :href="`https://www.google.com/search?q=${encodeURIComponent(truckInfo.name + ' food truck')}`"
+            target="_blank"
+            class="text-primary hover:text-primary-dim transition-colors font-label text-[10px] uppercase tracking-widest font-bold flex items-center gap-1"
+          >
+            <span class="material-symbols-outlined text-xs">search</span>
+            Search on Google
+          </a>
+        </div>
 
         <div class="space-y-6">
           <div 
             v-for="(stop, idx) in truckInfo.stops" 
             :key="idx"
-            class="p-6 rounded-lg bg-white border border-[#1E293B]/10 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+            class="bg-surface-container-lowest rounded-xl p-5 shadow-[0_4px_20px_rgba(0,103,94,0.06)] border border-outline-variant/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
           >
             <div>
-              <div class="flex items-center gap-3 mb-1">
-                <span class="font-label text-xs font-bold text-[#64748B] uppercase tracking-wider">
+              <div class="flex items-center gap-3 mb-2">
+                <span class="font-label text-[1rem] font-bold text-on-surface-variant/60">
                   {{ formatDate(stop.date) }}
                 </span>
-                <span class="text-[#1E293B]/20 text-xs">•</span>
-                <span class="font-label text-xs font-bold text-primary-mint-dark uppercase tracking-wider">
+                <span class="h-1 w-1 rounded-full bg-outline-variant/30"></span>
+                <span class="font-label text-[1rem] font-bold text-primary uppercase tracking-widest">
                   {{ stop.start_time }} — {{ stop.end_time }}
                 </span>
               </div>
-              <h3 class="font-headline text-xl font-bold text-[#1E293B]">
-                {{ stop.location }}
+              <h3 class="font-headline text-xl font-extrabold text-on-surface">
+                <a
+                  v-if="stop.location_url"
+                  :href="stop.location_url"
+                  target="_blank"
+                  class="hover:text-primary transition-colors"
+                >{{ stop.location }}</a>
+                <span v-else>{{ stop.location }}</span>
               </h3>
             </div>
             
@@ -112,17 +126,17 @@ const formatDate = (dateStr: string) => {
               v-if="stop.location_url"
               :href="stop.location_url"
               target="_blank"
-              class="px-4 py-2 rounded-lg border border-[#64748B]/30 text-[#64748B] hover:bg-[#F8F8FF] transition-all text-xs font-bold uppercase tracking-widest"
+              class="px-5 py-2 rounded-full border border-primary/20 text-primary hover:bg-primary/5 transition-all text-[10px] font-bold uppercase tracking-widest"
             >
               Brewery Info
             </a>
           </div>
         </div>
 
-        <div v-if="truckInfo.stops.length === 0" class="py-12 text-center text-[#64748B] italic">
+        <div v-if="truckInfo.stops.length === 0" class="py-12 text-center text-on-surface-variant italic font-body">
           No other upcoming stops found in this archive cycle.
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </template>
