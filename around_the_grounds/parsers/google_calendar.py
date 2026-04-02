@@ -21,7 +21,7 @@ _CATEGORY_RULES: List[Tuple[str, str]] = [
     (r"live\s*music|concert|open\s*mic|jam\s*session|jazz", "live-music"),
     (r"trivia", "trivia"),
     (r"run(ning)?\s*club", "community"),
-    (r"yarnaholics|knitting|choir", "community"),
+    (r"yarnaholics|knitting|choir|paint|challenge", "community"),
     (r"food\s*truck", "food-truck"),
 ]
 

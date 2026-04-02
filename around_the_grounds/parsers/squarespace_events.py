@@ -20,6 +20,13 @@ class SquarespaceEventsParser(BaseParser):
     Can fetch data via ?format=json or via the GetItemsByMonth API.
     """
 
+    # Global category patterns to catch common non-truck events across all breweries
+    GLOBAL_CATEGORY_RULES = [
+        (r"trivia|bingo|quiz", "trivia"),
+        (r"live\s*music|concert|open\s*mic|jam\s*session|jazz|music|songs?|performance", "live-music"),
+        (r"run(ning)?\s*club|knit|coloring|paint|challenge|game\s*night|meet|choir", "community"),
+    ]
+
     def __init__(self, brewery: Brewery) -> None:
         super().__init__(brewery)
         self.exclude_patterns = self.brewery.parser_config.get("exclude_patterns", [])
@@ -218,10 +225,20 @@ class SquarespaceEventsParser(BaseParser):
         - "food-truck": it's a food truck booking
         - "trivia", "community", etc.: a non-truck event to include in Events tab
         """
+        # 1. Check explicit exclusions
         for pattern in self.exclude_patterns:
             if re.search(pattern, title, re.IGNORECASE):
                 return None
+        
+        # 2. Check brewery-specific patterns (high priority)
         for pattern, category in self.category_patterns.items():
             if re.search(pattern, title, re.IGNORECASE):
                 return category
+        
+        # 3. Check global common event patterns
+        for pattern, category in self.GLOBAL_CATEGORY_RULES:
+            if re.search(pattern, title, re.IGNORECASE):
+                return category
+                
+        # 4. Default to food truck if no other match
         return "food-truck"
