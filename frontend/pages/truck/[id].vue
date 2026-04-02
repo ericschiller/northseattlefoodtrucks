@@ -37,9 +37,43 @@ const truckInfo = computed(() => {
     names.filter(v => v === a).length - names.filter(v => v === b).length
   ).pop() || stops[0].vendor
 
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
-  const upcomingStops = stops.filter(s => s.date.split('T')[0] >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
+  const upcomingStops = stops.filter(s => {
+    const eventDateStr = s.date.split('T')[0]
+    
+    // 1. If date is in the future, keep it
+    if (eventDateStr > todayStr) return true
+    
+    // 2. If date is in the past, discard it
+    if (eventDateStr < todayStr) return false
+    
+    // 3. If it's today, check the end time
+    if (eventDateStr === todayStr) {
+      if (!s.end_time) return true // Keep "All Day" stops
+      
+      try {
+        const timeParts = s.end_time.trim().split(' ')
+        const timeStr = timeParts[0]
+        const modifier = timeParts[1]?.toUpperCase()
+        
+        let [hours, minutes] = timeStr.split(':').map(Number)
+        if (isNaN(minutes)) minutes = 0
+        
+        if (modifier === 'PM' && hours < 12) hours += 12
+        if (modifier === 'AM' && hours === 12) hours = 0
+        
+        const endDateTime = new Date()
+        endDateTime.setHours(hours, minutes, 0, 0)
+        
+        const currentPacificTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }))
+        
+        return endDateTime > currentPacificTime
+      } catch (e) {
+        return true
+      }
+    }
+    return false
+  }).sort((a, b) => a.date.localeCompare(b.date))
 
   return {
     name,

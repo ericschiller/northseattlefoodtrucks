@@ -29,10 +29,48 @@ const groupedEvents = computed(() => {
     : data.value?.other_events
   if (!list) return {}
 
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
+  const now = new Date()
+  const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
 
   const sortedList = [...list]
-    .filter(event => event.date.split('T')[0] >= today)
+    .filter(event => {
+      const eventDateStr = event.date.split('T')[0]
+      
+      // 1. If date is in the future, keep it
+      if (eventDateStr > todayStr) return true
+      
+      // 2. If date is in the past, discard it
+      if (eventDateStr < todayStr) return false
+      
+      // 3. If it's today, check the end time
+      if (eventDateStr === todayStr) {
+        if (!event.end_time) return true // Keep "All Day" events
+        
+        try {
+          // Parse "9:00 PM", "9 PM", or "21:00" etc.
+          const timeParts = event.end_time.trim().split(' ')
+          const timeStr = timeParts[0]
+          const modifier = timeParts[1]?.toUpperCase()
+          
+          let [hours, minutes] = timeStr.split(':').map(Number)
+          if (isNaN(minutes)) minutes = 0
+          
+          if (modifier === 'PM' && hours < 12) hours += 12
+          if (modifier === 'AM' && hours === 12) hours = 0
+          
+          const endDateTime = new Date()
+          endDateTime.setHours(hours, minutes, 0, 0)
+          
+          // Use current time in Pacific for comparison
+          const currentPacificTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }))
+          
+          return endDateTime > currentPacificTime
+        } catch (e) {
+          return true // Fallback to showing it if parsing fails
+        }
+      }
+      return false
+    })
     .sort((a, b) => a.date.localeCompare(b.date))
 
   const groups: Record<string, (FoodTruckEvent & { globalIndex: number })[]> = {}
